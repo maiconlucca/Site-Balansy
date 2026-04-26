@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Balansy — Organize seu dia, equilibre sua vida</title>
+  <meta name="description" content="O app que transforma como você organiza seu dia com agenda, tarefas, hábitos, foco e aprendizado." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Balansy — Equilibre sua rotina" />
+  <meta property="og:description" content="Agenda, Tarefas, Hábitos, Foco e Aprendizado em um único app." />
+  <meta property="og:image" content="assets/logo.png" />
+
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       CSS VARIABLES & RESET
+    ============================================================ */
+    :root {
+      --green:   #6FD66A;
+      --green2:  #4DC247;
+      --blue:    #4B91FF;
+      --blue2:   #2B6FE8;
+      --purple:  #8B63F0;
+      --purple2: #6B3FCF;
+      --dark:    #0D0F18;
+      --dark2:   #13162A;
+      --card:    #181B2E;
+      --card2:   #1F2340;
+      --muted:   #636880;
+      --text:    #E8EAF6;
+      --text2:   #A0A5C0;
+      --border:  rgba(255,255,255,0.07);
+      --radius:  20px;
+      --shadow:  0 24px 64px rgba(0,0,0,0.45);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    h1,h2,h3,h4,h5 { font-family: 'Syne', sans-serif; line-height: 1.2; }
+
+    a { color: inherit; text-decoration: none; }
+
+    img { max-width: 100%; display: block; }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ============================================================
+       GRADIENT TEXT & HELPERS
+    ============================================================ */
+    .grad-text {
+      background: linear-gradient(135deg, var(--green), var(--blue), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .grad-green { background: linear-gradient(135deg, #a8ff78, var(--green2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .grad-blue  { background: linear-gradient(135deg, #74b3ff, var(--blue2));  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .grad-purple{ background: linear-gradient(135deg, #b8a0ff, var(--purple2));-webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 50px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border: none;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.4); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--green2), var(--blue));
+      color: #fff;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text2);
+    }
+    .btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* ============================================================
+       NOISE OVERLAY
+    ============================================================ */
+    body::before {
+      content:'';
+      position:fixed;
+      inset:0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events:none;
+      z-index:9999;
+      opacity:.5;
+    }
+
+    /* ============================================================
+       NAV
+    ============================================================ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 16px 0;
+      transition: background .3s, backdrop-filter .3s;
+    }
+    nav.scrolled {
+      background: rgba(13,15,24,0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-logo img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+    }
+    .nav-logo-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      background: linear-gradient(135deg, var(--green), var(--blue), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .lang-switcher {
+      display: flex;
+      gap: 4px;
+    }
+    .lang-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text2);
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .lang-btn.active, .lang-btn:hover {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+    .nav-cta { display: none; }
+    @media (min-width: 640px) { .nav-cta { display: inline-flex; } }
+
+    /* ============================================================
+       HERO
+    ============================================================ */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding: 120px 0 80px;
+    }
+
+    /* Animated background orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      pointer-events: none;
+      animation: float-orb 8s ease-in-out infinite;
+    }
+    .orb-1 { width: 500px; height: 500px; background: var(--purple); top: -100px; left: -150px; animation-delay: 0s; }
+    .orb-2 { width: 400px; height: 400px; background: var(--blue); top: 200px; right: -100px; animation-delay: 2.5s; }
+    .orb-3 { width: 300px; height: 300px; background: var(--green); bottom: 0; left: 30%; animation-delay: 5s; }
+
+    @keyframes float-orb {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-30px) scale(1.05); }
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 60px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    @media (min-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(75, 145, 255, 0.12);
+      border: 1px solid rgba(75, 145, 255, 0.25);
+      border-radius: 50px;
+      padding: 6px 16px;
+      font-size: 0.82rem;
+      color: var(--blue);
+      font-weight: 500;
+      margin-bottom: 24px;
+    }
+    .hero-badge span { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); animation: pulse-dot 2s infinite; }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .5; transform: scale(1.5); }
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--text2);
+      max-width: 480px;
+      margin-bottom: 36px;
+      line-height: 1.7;
+    }
+
+    .hero-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    /* Stones animation */
+    .hero-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .stones-scene {
+      position: relative;
+      width: 340px;
+      height: 380px;
+    }
+
+    .phone-mockup {
+      position: absolute;
+      right: -20px;
+      top: 0;
+      width: 200px;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08);
+      animation: phone-float 5s ease-in-out infinite;
+    }
+    @keyframes phone-float {
+      0%,100% { transform: translateY(0) rotate(-2deg); }
+      50% { transform: translateY(-16px) rotate(-2deg); }
+    }
+
+    .stones-svg {
+      position: absolute;
+      left: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 180px;
+    }
+
+    .stone {
+      animation: stone-wobble 3s ease-in-out infinite;
+      transform-origin: center;
+    }
+    .stone-1 { animation-delay: 0s; }
+    .stone-2 { animation-delay: .4s; }
+    .stone-3 { animation-delay: .8s; }
+
+    @keyframes stone-wobble {
+      0%,100% { transform: rotate(0deg) translateY(0); }
+      25% { transform: rotate(1.5deg) translateY(-2px); }
+      75% { transform: rotate(-1.5deg) translateY(2px); }
+    }
+
+    /* ============================================================
+       SECTION COMMONS
+    ============================================================ */
+    section { padding: 100px 0; }
+
+    .section-label {
+      display: inline-block;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .section-desc {
+      font-size: 1.05rem;
+      color: var(--text2);
+      max-width: 540px;
+      line-height: 1.7;
+    }
+
+    /* reveal animation */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: .1s; }
+    .reveal-delay-2 { transition-delay: .2s; }
+    .reveal-delay-3 { transition-delay: .3s; }
+    .reveal-delay-4 { transition-delay: .4s; }
+    .reveal-delay-5 { transition-delay: .5s; }
+
+    /* ============================================================
+       FEATURES SECTION
+    ============================================================ */
+    .features-section {
+      background: linear-gradient(180deg, var(--dark) 0%, var(--dark2) 100%);
+    }
+
+    .features-header { margin-bottom: 60px; }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      transition: transform .3s, border-color .3s, box-shadow .3s;
+      cursor: default;
+    }
+    .feature-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255,255,255,0.15);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .feature-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-size: 0.88rem;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    .feature-card.green { border-top: 3px solid var(--green); }
+    .feature-card.blue  { border-top: 3px solid var(--blue); }
+    .feature-card.purple{ border-top: 3px solid var(--purple); }
+    .feature-card.mix1  { border-top: 3px solid #FF9F4B; }
+    .feature-card.mix2  { border-top: 3px solid #FF6B8A; }
+
+    /* ============================================================
+       SCREENSHOTS SECTION
+    ============================================================ */
+    .screens-section { overflow: hidden; }
+
+    .screens-track-wrapper {
+      overflow: hidden;
+      margin-top: 60px;
+      position: relative;
+    }
+
+    .screens-track {
+      display: flex;
+      gap: 24px;
+      animation: scroll-track 28s linear infinite;
+      width: max-content;
+    }
+    .screens-track:hover { animation-play-state: paused; }
+
+    @keyframes scroll-track {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .screen-frame {
+      width: 220px;
+      flex-shrink: 0;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+      transition: transform .3s;
+    }
+    .screen-frame:hover {
+      transform: scale(1.04) translateY(-8px);
+      border-color: rgba(75,145,255,0.3);
+    }
+    .screen-frame img { width: 100%; display: block; }
+
+    /* ============================================================
+       METRICS SECTION
+    ============================================================ */
+    .metrics-section {
+      background: var(--dark2);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 32px;
+      margin-top: 60px;
+    }
+    @media (min-width: 800px) {
+      .metrics-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .metric-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 36px 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .metric-card::before {
+      content:'';
+      position:absolute;
+      top:0; left:0; right:0;
+      height: 3px;
+    }
+    .metric-card.purple::before { background: linear-gradient(90deg, var(--blue), var(--purple)); }
+    .metric-card.green::before  { background: linear-gradient(90deg, var(--green2), var(--green)); }
+
+    .metric-score {
+      font-family: 'Syne', sans-serif;
+      font-size: 4rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .metric-label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    .metric-bars { display: flex; flex-direction: column; gap: 14px; }
+
+    .bar-row { display: flex; align-items: center; gap: 12px; }
+    .bar-label { font-size: 0.88rem; color: var(--text2); min-width: 90px; font-weight: 500; }
+    .bar-track {
+      flex: 1;
+      height: 6px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 1.2s cubic-bezier(.16,1,.3,1);
+    }
+    .bar-fill.animated { transform: scaleX(1); }
+    .bar-pct { font-size: 0.78rem; color: var(--muted); min-width: 32px; text-align: right; }
+
+    .metric-card.purple .bar-fill { background: linear-gradient(90deg, var(--blue), var(--purple)); }
+    .metric-card.green  .bar-fill { background: linear-gradient(90deg, var(--green2), #a8ff78); }
+
+    .metric-phone {
+      position: absolute;
+      bottom: -20px;
+      right: -10px;
+      width: 130px;
+      border-radius: 16px;
+      overflow: hidden;
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    /* ============================================================
+       HOW IT WORKS
+    ============================================================ */
+    .how-section { background: var(--dark); }
+
+    .how-steps {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 60px;
+      margin-top: 70px;
+    }
+    @media (min-width: 900px) {
+      .how-steps { grid-template-columns: 1fr 1fr; gap: 80px; }
+    }
+
+    .how-step {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+    .step-num.g { background: rgba(111,214,106,0.15); color: var(--green); border: 1px solid rgba(111,214,106,0.3); }
+    .step-num.b { background: rgba(75,145,255,0.15);  color: var(--blue);  border: 1px solid rgba(75,145,255,0.3); }
+    .step-num.p { background: rgba(139,99,240,0.15);  color: var(--purple);border: 1px solid rgba(139,99,240,0.3); }
+    .step-num.o { background: rgba(255,159,75,0.15);  color: #FF9F4B;      border: 1px solid rgba(255,159,75,0.3); }
+
+    .step-content h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+    .step-content p  { font-size: 0.92rem; color: var(--text2); line-height: 1.65; }
+
+    /* ============================================================
+       QUOTE / BANNER
+    ============================================================ */
+    .banner-section {
+      background: linear-gradient(135deg, rgba(75,145,255,0.08), rgba(139,99,240,0.08));
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 80px 0;
+      text-align: center;
+    }
+
+    .banner-section blockquote {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+      font-weight: 700;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.4;
+    }
+
+    /* ============================================================
+       DOWNLOAD CTA
+    ============================================================ */
+    .cta-section {
+      text-align: center;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(75,145,255,0.15), transparent);
+    }
+
+    .cta-section h2 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; margin-bottom: 20px; }
+    .cta-section p  { font-size: 1.05rem; color: var(--text2); margin-bottom: 40px; max-width: 480px; margin-left: auto; margin-right: auto; }
+
+    .store-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .store-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 24px;
+      transition: transform .2s, border-color .2s;
+      cursor: pointer;
+    }
+    .store-badge:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.2); }
+    .store-badge svg  { width: 28px; height: 28px; }
+    .store-badge-text small { display: block; font-size: 0.7rem; color: var(--muted); }
+    .store-badge-text strong { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; }
+
+    /* ============================================================
+       PRIVACY / TERMS
+    ============================================================ */
+    .legal-section {
+      background: var(--dark2);
+      border-top: 1px solid var(--border);
+    }
+
+    .legal-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .legal-tab {
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: none;
+      color: var(--text2);
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .legal-tab.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+
+    .legal-content { display: none; }
+    .legal-content.active { display: block; }
+
+    .legal-doc {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .legal-doc::-webkit-scrollbar { width: 6px; }
+    .legal-doc::-webkit-scrollbar-track { background: transparent; }
+    .legal-doc::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 10px; }
+
+    .legal-doc h2 {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .legal-doc .legal-updated {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 32px;
+      display: block;
+    }
+
+    .legal-doc h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 28px;
+      margin-bottom: 10px;
+    }
+
+    .legal-doc p, .legal-doc li {
+      font-size: 0.9rem;
+      color: var(--text2);
+      line-height: 1.7;
+      margin-bottom: 8px;
+    }
+
+    .legal-doc ul { padding-left: 20px; margin-bottom: 12px; }
+
+    .legal-doc a { color: var(--blue); }
+
+    .legal-doc .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
+    }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      background: var(--dark);
+      border-top: 1px solid var(--border);
+      padding: 60px 0 32px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 48px;
+    }
+    @media (max-width: 640px) {
+      .footer-grid { grid-template-columns: 1fr; }
+    }
+
+    .footer-brand p { font-size: 0.9rem; color: var(--muted); margin-top: 12px; max-width: 280px; line-height: 1.6; }
+
+    .footer-col h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .footer-col a {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--text2);
+      margin-bottom: 10px;
+      transition: color .2s;
+    }
+    .footer-col a:hover { color: var(--text); }
+
+    .footer-bottom {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-bottom p { font-size: 0.82rem; color: var(--muted); }
+
+    /* ============================================================
+       SCROLL TOP BUTTON
+    ============================================================ */
+    .scroll-top {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--blue);
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity .3s, transform .3s;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .scroll-top.visible { opacity: 1; transform: translateY(0); }
+
+    /* ============================================================
+       FLOATING BALANCE INDICATOR (decorative)
+    ============================================================ */
+    .balance-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 10px 20px;
+      margin-top: 32px;
+    }
+    .balance-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .balance-dot.g { background: var(--green); }
+    .balance-dot.b { background: var(--blue); }
+    .balance-dot.p { background: var(--purple); }
+    .balance-indicator span { font-size: 0.82rem; color: var(--text2); font-weight: 500; }
+
+    /* ============================================================
+       STATS ROW
+    ============================================================ */
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      margin: 60px 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .stat-item {
+      flex: 1;
+      min-width: 150px;
+      padding: 32px 28px;
+      border-right: 1px solid var(--border);
+      text-align: center;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .stat-label { font-size: 0.82rem; color: var(--muted); }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 640px) {
+      .hero { padding: 100px 0 60px; }
+      .screens-track { gap: 16px; }
+      .screen-frame { width: 170px; }
+      .legal-doc { padding: 24px; }
+      .footer-col { display: none; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-col:first-child { display: block; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAV
+============================================================ -->
+<nav id="navbar">
+  <div class="container nav-inner">
+    <a href="#" class="nav-logo">
+      <img src="assets/logo.png" alt="Balansy Logo" />
+      <span class="nav-logo-name">Balansy</span>
+    </a>
+    <div class="nav-right">
+      <div class="lang-switcher">
+        <button class="lang-btn" onclick="setLang('pt')" data-lang="pt">PT</button>
+        <button class="lang-btn" onclick="setLang('en')" data-lang="en">EN</button>
+        <button class="lang-btn" onclick="setLang('es')" data-lang="es">ES</button>
+        <button class="lang-btn" onclick="setLang('it')" data-lang="it">IT</button>
+      </div>
+      <a href="#download" class="btn btn-primary nav-cta" data-i18n="nav_cta">Baixar App</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="hero" id="home">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="container">
+    <div class="hero-grid">
+      <!-- Left -->
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span></span>
+          <span data-i18n="hero_badge">Produtividade com equilíbrio</span>
+        </div>
+        <h1>
+          <span data-i18n="hero_h1a">Equilibre</span><br/>
+          <span class="grad-text" data-i18n="hero_h1b">sua rotina.</span><br/>
+          <span data-i18n="hero_h1c">Simplifique</span><br/>
+          <span class="grad-purple" data-i18n="hero_h1d">sua vida.</span>
+        </h1>
+        <p data-i18n="hero_desc">
+          O Balansy transforma a forma como você organiza seu dia. Mais do que produtividade — é equilíbrio entre o que você planeja e o que você realmente executa.
+        </p>
+        <div class="hero-buttons">
+          <a href="#download" class="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.4c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.39-1.32 2.76-2.54 3.99zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+            <span data-i18n="cta_apple">App Store</span>
+          </a>
+          <a href="#download" class="btn btn-outline">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76a2.4 2.4 0 0 0 .87-.19l12.03-6.95-2.62-2.62-10.28 9.76zm-1.82-21.5v19.49l10.68-9.74L1.36 2.26zM19.35 9.29l-2.79-1.61-2.93 2.67 2.93 2.67 2.82-1.63a1.68 1.68 0 0 0-.03-3.1zM4.05.43L16.08 7.38l-2.62 2.62L4.05.43z"/></svg>
+            <span data-i18n="cta_google">Google Play</span>
+          </a>
+        </div>
+        <div class="balance-indicator">
+          <div class="balance-dot g"></div>
+          <div class="balance-dot b"></div>
+          <div class="balance-dot p"></div>
+          <span data-i18n="hero_indicator">Agenda · Tarefas · Hábitos · Foco · Aprendizado</span>
+        </div>
+      </div>
+
+      <!-- Right: phone + stones -->
+      <div class="hero-visual">
+        <div class="stones-scene">
+          <!-- Animated SVG stones -->
+          <svg class="stones-svg" viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#a8ff78"/>
+                <stop offset="100%" stop-color="#6FD66A"/>
+              </linearGradient>
+              <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#74b3ff"/>
+                <stop offset="100%" stop-color="#4B91FF"/>
+              </linearGradient>
+              <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#b8a0ff"/>
+                <stop offset="100%" stop-color="#8B63F0"/>
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            <!-- Shadow/base -->
+            <ellipse cx="100" cy="268" rx="60" ry="10" fill="rgba(75,145,255,0.2)" filter="url(#glow)"/>
+            <!-- Ball balance point -->
+            <circle cx="100" cy="248" r="10" fill="url(#g2)" filter="url(#glow)"/>
+            <!-- Stone 3 (bottom/largest, purple) -->
+            <g class="stone stone-3">
+              <ellipse cx="100" cy="215" rx="72" ry="26" fill="url(#g3)" filter="url(#glow)"/>
+              <text x="100" y="221" text-anchor="middle" font-size="18" fill="white" font-weight="bold">✓</text>
+            </g>
+            <!-- Stone 2 (middle, blue) -->
+            <g class="stone stone-2">
+              <ellipse cx="100" cy="160" rx="56" ry="22" fill="url(#g2)" filter="url(#glow)"/>
+              <text x="100" y="166" text-anchor="middle" font-size="16" fill="white" font-weight="bold">✓</text>
+            </g>
+            <!-- Stone 1 (top/smallest, green) -->
+            <g class="stone stone-1">
+              <ellipse cx="100" cy="115" rx="42" ry="18" fill="url(#g1)" filter="url(#glow)"/>
+              <text x="100" y="121" text-anchor="middle" font-size="14" fill="white" font-weight="bold">✓</text>
+            </g>
+          </svg>
+          <!-- Phone mockup -->
+          <div class="phone-mockup">
+            <img src="assets/screen-home.png" alt="Balansy Home Screen" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     STATS
+============================================================ -->
+<div class="container">
+  <div class="stats-row reveal">
+    <div class="stat-item">
+      <span class="stat-num grad-green">5</span>
+      <div class="stat-label" data-i18n="stat1">Módulos integrados</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num grad-blue">100</span>
+      <div class="stat-label" data-i18n="stat2">Índice de organização</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num grad-purple">∞</span>
+      <div class="stat-label" data-i18n="stat3">Hábitos rastreáveis</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num grad-text">0→1</span>
+      <div class="stat-label" data-i18n="stat4">Sua evolução diária</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     FEATURES
+============================================================ -->
+<section class="features-section" id="features">
+  <div class="container">
+    <div class="features-header reveal">
+      <span class="section-label" data-i18n="feat_label">Funcionalidades</span>
+      <h2 class="section-title" data-i18n="feat_title">Tudo que você precisa,<br/><span class="grad-text">em um só lugar</span></h2>
+      <p class="section-desc" data-i18n="feat_desc">Chega de apps desconectados. O Balansy integra agenda, tarefas, hábitos, foco e aprendizado em uma experiência coesa e fluida.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card green reveal reveal-delay-1">
+        <span class="feature-icon">📅</span>
+        <h3 data-i18n="f1_title">Agenda</h3>
+        <p data-i18n="f1_desc">Organize seus compromissos com clareza. Visualize seu dia, semana e mês com filtros por categoria.</p>
+      </div>
+      <div class="feature-card blue reveal reveal-delay-2">
+        <span class="feature-icon">✅</span>
+        <h3 data-i18n="f2_title">Tarefas</h3>
+        <p data-i18n="f2_desc">Gerencie o que precisa ser feito com prioridades, lista e Matriz de Eisenhower para foco inteligente.</p>
+      </div>
+      <div class="feature-card purple reveal reveal-delay-3">
+        <span class="feature-icon">🔁</span>
+        <h3 data-i18n="f3_title">Hábitos</h3>
+        <p data-i18n="f3_desc">Construa consistência. Rastreie streaks, categorias e métricas de qualidade de vida, saúde e bem-estar.</p>
+      </div>
+      <div class="feature-card mix1 reveal reveal-delay-4">
+        <span class="feature-icon">⏱</span>
+        <h3 data-i18n="f4_title">Foco (Pomodoro)</h3>
+        <p data-i18n="f4_desc">Sessões estruturadas de foco para aumentar sua produtividade e evitar a procrastinação.</p>
+      </div>
+      <div class="feature-card mix2 reveal reveal-delay-5">
+        <span class="feature-icon">🌍</span>
+        <h3 data-i18n="f5_title">Aprendizado</h3>
+        <p data-i18n="f5_desc">Aprenda novos idiomas e evolua continuamente com o sistema de vocabulário integrado aos hábitos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SCREENSHOTS CAROUSEL
+============================================================ -->
+<section class="screens-section" id="screenshots">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-label" data-i18n="screens_label">Capturas de tela</span>
+      <h2 class="section-title" data-i18n="screens_title">Veja o Balansy em ação</h2>
+      <p class="section-desc" data-i18n="screens_desc">Interface limpa, moderna e pensada para o seu dia a dia.</p>
+    </div>
+  </div>
+  <div class="screens-track-wrapper">
+    <div class="screens-track" id="screenTrack">
+      <div class="screen-frame"><img src="assets/screen-home.png" alt="Home" /></div>
+      <div class="screen-frame"><img src="assets/screen-agenda.png" alt="Agenda" /></div>
+      <div class="screen-frame"><img src="assets/screen-tasks.png" alt="Tasks" /></div>
+      <div class="screen-frame"><img src="assets/screen-tasks2.png" alt="Matrix" /></div>
+      <div class="screen-frame"><img src="assets/screen-habits.png" alt="Habits" /></div>
+      <div class="screen-frame"><img src="assets/screen-habits2.png" alt="Habits list" /></div>
+      <div class="screen-frame"><img src="assets/screen-org-index.png" alt="Org Index" /></div>
+      <div class="screen-frame"><img src="assets/screen-habits-index.png" alt="Habits Index" /></div>
+      <!-- Duplicate for infinite loop -->
+      <div class="screen-frame"><img src="assets/screen-home.png" alt="Home" /></div>
+      <div class="screen-frame"><img src="assets/screen-agenda.png" alt="Agenda" /></div>
+      <div class="screen-frame"><img src="assets/screen-tasks.png" alt="Tasks" /></div>
+      <div class="screen-frame"><img src="assets/screen-tasks2.png" alt="Matrix" /></div>
+      <div class="screen-frame"><img src="assets/screen-habits.png" alt="Habits" /></div>
+      <div class="screen-frame"><img src="assets/screen-habits2.png" alt="Habits list" /></div>
+      <div class="screen-frame"><img src="assets/screen-org-index.png" alt="Org Index" /></div>
+      <div class="screen-frame"><img src="assets/screen-habits-index.png" alt="Habits Index" /></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     METRICS
+============================================================ -->
+<section class="metrics-section" id="metrics">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-label" data-i18n="metrics_label">Índices inteligentes</span>
+      <h2 class="section-title" data-i18n="metrics_title">Veja seu dia com <span class="grad-blue">mais clareza</span></h2>
+      <p class="section-desc" data-i18n="metrics_desc">O Balansy transforma sua rotina em algo visível e mensurável. Com indicadores inteligentes, você entende onde está perdendo foco ou energia.</p>
+    </div>
+
+    <div class="metrics-grid">
+      <!-- Organization Index -->
+      <div class="metric-card purple reveal reveal-delay-1">
+        <div class="metric-score grad-purple">44</div>
+        <div class="metric-label" data-i18n="org_index_label">Índice de Organização / 100</div>
+        <div class="metric-bars">
+          <div class="bar-row">
+            <span class="bar-label" data-i18n="bar_schedule">Agenda</span>
+            <div class="bar-track"><div class="bar-fill" style="width:92%"></div></div>
+            <span class="bar-pct">35%</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" data-i18n="bar_tasks">Tarefas</span>
+            <div class="bar-track"><div class="bar-fill" style="width:38%"></div></div>
+            <span class="bar-pct">30%</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" data-i18n="bar_focus">Foco</span>
+            <div class="bar-track"><div class="bar-fill" style="width:0%"></div></div>
+            <span class="bar-pct">20%</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" data-i18n="bar_planning">Planejamento</span>
+            <div class="bar-track"><div class="bar-fill" style="width:0%"></div></div>
+            <span class="bar-pct">15%</span>
+          </div>
+        </div>
+        <div class="metric-phone">
+          <img src="assets/screen-org-index.png" alt="Org Index" />
+        </div>
+      </div>
+
+      <!-- Habits Index -->
+      <div class="metric-card green reveal reveal-delay-2">
+        <div class="metric-score grad-green">21</div>
+        <div class="metric-label" data-i18n="hab_index_label">Índice de Hábitos / 100</div>
+        <div class="metric-bars">
+          <div class="bar-row">
+            <span class="bar-label" data-i18n="bar_completion">Conclusão</span>
+            <div class="bar-track"><div class="bar-fill" style="width:25%"></div></div>
+            <span class="bar-pct">60%</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" data-i18n="bar_consistency">Consistência</span>
+            <div class="bar-track"><div class="bar-fill" style="width:10%"></div></div>
+            <span class="bar-pct">25%</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" data-i18n="bar_quality">Qualidade</span>
+            <div class="bar-track"><div class="bar-fill" style="width:25%"></div></div>
+            <span class="bar-pct">15%</span>
+          </div>
+        </div>
+        <div class="metric-phone">
+          <img src="assets/screen-habits-index.png" alt="Habits Index" />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     HOW IT WORKS
+============================================================ -->
+<section class="how-section" id="how">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-label" data-i18n="how_label">Como funciona</span>
+      <h2 class="section-title" data-i18n="how_title">Produtividade que <span class="grad-text">faz sentido</span></h2>
+      <p class="section-desc" data-i18n="how_desc">Não se trata de fazer mais. Se trata de fazer melhor — com intenção, consistência e equilíbrio.</p>
+    </div>
+
+    <div class="how-steps">
+      <div class="how-step reveal reveal-delay-1">
+        <div class="step-num g">1</div>
+        <div class="step-content">
+          <h3 data-i18n="step1_title">Organize sua agenda</h3>
+          <p data-i18n="step1_desc">Adicione eventos, compromissos e blocos de tempo. Visualize o dia com categorias coloridas — Trabalho, Pessoal, Família e mais.</p>
+        </div>
+      </div>
+      <div class="how-step reveal reveal-delay-2">
+        <div class="step-num b">2</div>
+        <div class="step-content">
+          <h3 data-i18n="step2_title">Priorize suas tarefas</h3>
+          <p data-i18n="step2_desc">Use a lista clássica ou a Matriz de Eisenhower para separar o urgente do importante. Integre o Pomodoro para focar sem distrações.</p>
+        </div>
+      </div>
+      <div class="how-step reveal reveal-delay-3">
+        <div class="step-num p">3</div>
+        <div class="step-content">
+          <h3 data-i18n="step3_title">Construa hábitos sólidos</h3>
+          <p data-i18n="step3_desc">Rastreie vitaminas, meditação, leitura, hidratação e muito mais. Mantenha streaks e veja sua consistência crescer semana a semana.</p>
+        </div>
+      </div>
+      <div class="how-step reveal reveal-delay-4">
+        <div class="step-num o">4</div>
+        <div class="step-content">
+          <h3 data-i18n="step4_title">Acompanhe seu progresso</h3>
+          <p data-i18n="step4_desc">Os índices de Organização e Hábitos transformam seu comportamento em dados visuais. Entenda o que funciona e o que precisa de atenção.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     QUOTE BANNER
+============================================================ -->
+<section class="banner-section">
+  <div class="container">
+    <blockquote class="reveal">
+      <span class="grad-text" data-i18n="quote">"Pequenos avanços geram grandes mudanças. Mais clareza. Mais foco. Mais consistência."</span>
+    </blockquote>
+  </div>
+</section>
+
+<!-- ============================================================
+     CTA DOWNLOAD
+============================================================ -->
+<section class="cta-section" id="download">
+  <div class="container reveal">
+    <h2 data-i18n="cta_title">Comece agora.<br/><span class="grad-text">É gratuito.</span></h2>
+    <p data-i18n="cta_desc">Dê o primeiro passo para uma rotina mais equilibrada. Disponível para iOS e Android.</p>
+    <div class="store-badges">
+      <div class="store-badge">
+        <svg viewBox="0 0 24 24" fill="white"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.4c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.39-1.32 2.76-2.54 3.99zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+        <div class="store-badge-text">
+          <small data-i18n="badge_download">Disponível na</small>
+          <strong>App Store</strong>
+        </div>
+      </div>
+      <div class="store-badge">
+        <svg viewBox="0 0 24 24" fill="white"><path d="M3.18 23.76a2.4 2.4 0 0 0 .87-.19l12.03-6.95-2.62-2.62-10.28 9.76zm-1.82-21.5v19.49l10.68-9.74L1.36 2.26zM19.35 9.29l-2.79-1.61-2.93 2.67 2.93 2.67 2.82-1.63a1.68 1.68 0 0 0-.03-3.1zM4.05.43L16.08 7.38l-2.62 2.62L4.05.43z"/></svg>
+        <div class="store-badge-text">
+          <small data-i18n="badge_download">Disponível no</small>
+          <strong>Google Play</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PRIVACY & TERMS
+============================================================ -->
+<section class="legal-section" id="legal">
+  <div class="container">
+    <div class="reveal">
+      <span class="section-label" data-i18n="legal_label">Legal</span>
+      <h2 class="section-title" data-i18n="legal_title">Termos &amp; Privacidade</h2>
+    </div>
+
+    <div class="legal-tabs">
+      <button class="legal-tab active" onclick="showLegal('privacy')" data-i18n="tab_privacy">Política de Privacidade</button>
+      <button class="legal-tab" onclick="showLegal('terms')" data-i18n="tab_terms">Termos de Uso</button>
+    </div>
+
+    <div class="legal-content active" id="legal-privacy">
+      <div class="legal-doc" id="privacy-text"></div>
+    </div>
+    <div class="legal-content" id="legal-terms">
+      <div class="legal-doc" id="terms-text"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo">
+          <img src="assets/logo.png" alt="Balansy Logo" style="width:32px;height:32px;" />
+          <span class="nav-logo-name">Balansy</span>
+        </div>
+        <p data-i18n="footer_desc">Organize seu dia, equilibre sua vida. O app de produtividade completo para quem busca consistência com leveza.</p>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_product">Produto</h4>
+        <a href="#features" data-i18n="footer_features">Funcionalidades</a>
+        <a href="#screenshots" data-i18n="footer_screens">Screenshots</a>
+        <a href="#download" data-i18n="footer_download">Download</a>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_legal">Legal</h4>
+        <a href="#legal" onclick="showLegal('privacy')" data-i18n="tab_privacy">Política de Privacidade</a>
+        <a href="#legal" onclick="showLegal('terms')" data-i18n="tab_terms">Termos de Uso</a>
+        <a href="mailto:subsolo.4.criticar@icloud.com" data-i18n="footer_support">Suporte</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Balansy. <span data-i18n="footer_rights">Todos os direitos reservados.</span></p>
+      <p><a href="mailto:subsolo.4.criticar@icloud.com" style="color:var(--blue)">subsolo.4.criticar@icloud.com</a></p>
+    </div>
+  </div>
+</footer>
+
+<!-- Scroll to top -->
+<button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+<script>
+/* ============================================================
+   TRANSLATIONS
+============================================================ */
+const i18n = {
+  pt: {
+    nav_cta: "Baixar App",
+    hero_badge: "Produtividade com equilíbrio",
+    hero_h1a: "Equilibre", hero_h1b: "sua rotina.", hero_h1c: "Simplifique", hero_h1d: "sua vida.",
+    hero_desc: "O Balansy transforma a forma como você organiza seu dia. Mais do que produtividade — é equilíbrio entre o que você planeja e o que você realmente executa.",
+    hero_indicator: "Agenda · Tarefas · Hábitos · Foco · Aprendizado",
+    cta_apple: "App Store", cta_google: "Google Play",
+    stat1: "Módulos integrados", stat2: "Índice de organização", stat3: "Hábitos rastreáveis", stat4: "Sua evolução diária",
+    feat_label: "Funcionalidades",
+    feat_title: "Tudo que você precisa,\nem um só lugar",
+    feat_desc: "Chega de apps desconectados. O Balansy integra agenda, tarefas, hábitos, foco e aprendizado em uma experiência coesa e fluida.",
+    f1_title: "Agenda", f1_desc: "Organize seus compromissos com clareza. Visualize seu dia, semana e mês com filtros por categoria.",
+    f2_title: "Tarefas", f2_desc: "Gerencie o que precisa ser feito com prioridades, lista e Matriz de Eisenhower para foco inteligente.",
+    f3_title: "Hábitos", f3_desc: "Construa consistência. Rastreie streaks, categorias e métricas de qualidade de vida, saúde e bem-estar.",
+    f4_title: "Foco (Pomodoro)", f4_desc: "Sessões estruturadas de foco para aumentar sua produtividade e evitar a procrastinação.",
+    f5_title: "Aprendizado", f5_desc: "Aprenda novos idiomas e evolua continuamente com o sistema de vocabulário integrado aos hábitos.",
+    screens_label: "Capturas de tela", screens_title: "Veja o Balansy em ação", screens_desc: "Interface limpa, moderna e pensada para o seu dia a dia.",
+    metrics_label: "Índices inteligentes", metrics_title: "Veja seu dia com mais clareza",
+    metrics_desc: "O Balansy transforma sua rotina em algo visível e mensurável. Com indicadores inteligentes, você entende onde está perdendo foco ou energia.",
+    org_index_label: "Índice de Organização / 100", hab_index_label: "Índice de Hábitos / 100",
+    bar_schedule: "Agenda", bar_tasks: "Tarefas", bar_focus: "Foco", bar_planning: "Planejamento",
+    bar_completion: "Conclusão", bar_consistency: "Consistência", bar_quality: "Qualidade",
+    how_label: "Como funciona", how_title: "Produtividade que faz sentido",
+    how_desc: "Não se trata de fazer mais. Se trata de fazer melhor — com intenção, consistência e equilíbrio.",
+    step1_title: "Organize sua agenda", step1_desc: "Adicione eventos, compromissos e blocos de tempo. Visualize o dia com categorias coloridas — Trabalho, Pessoal, Família e mais.",
+    step2_title: "Priorize suas tarefas", step2_desc: "Use a lista clássica ou a Matriz de Eisenhower para separar o urgente do importante. Integre o Pomodoro para focar sem distrações.",
+    step3_title: "Construa hábitos sólidos", step3_desc: "Rastreie vitaminas, meditação, leitura, hidratação e muito mais. Mantenha streaks e veja sua consistência crescer semana a semana.",
+    step4_title: "Acompanhe seu progresso", step4_desc: "Os índices de Organização e Hábitos transformam seu comportamento em dados visuais. Entenda o que funciona e o que precisa de atenção.",
+    quote: '"Pequenos avanços geram grandes mudanças. Mais clareza. Mais foco. Mais consistência."',
+    cta_title: "Comece agora.\nÉ gratuito.",
+    cta_desc: "Dê o primeiro passo para uma rotina mais equilibrada. Disponível para iOS e Android.",
+    badge_download: "Disponível na",
+    legal_label: "Legal", legal_title: "Termos & Privacidade",
+    tab_privacy: "Política de Privacidade", tab_terms: "Termos de Uso",
+    footer_desc: "Organize seu dia, equilibre sua vida. O app de produtividade completo para quem busca consistência com leveza.",
+    footer_product: "Produto", footer_features: "Funcionalidades", footer_screens: "Screenshots", footer_download: "Download",
+    footer_legal: "Legal", footer_support: "Suporte", footer_rights: "Todos os direitos reservados.",
+  },
+  en: {
+    nav_cta: "Download App",
+    hero_badge: "Productivity with balance",
+    hero_h1a: "Balance", hero_h1b: "your routine.", hero_h1c: "Simplify", hero_h1d: "your life.",
+    hero_desc: "Balansy transforms the way you organize your day. More than productivity — it's about balance between what you plan and what you actually execute.",
+    hero_indicator: "Agenda · Tasks · Habits · Focus · Learning",
+    cta_apple: "App Store", cta_google: "Google Play",
+    stat1: "Integrated modules", stat2: "Organization index", stat3: "Trackable habits", stat4: "Your daily growth",
+    feat_label: "Features",
+    feat_title: "Everything you need,\nin one place",
+    feat_desc: "No more disconnected apps. Balansy integrates agenda, tasks, habits, focus and learning into one cohesive, fluid experience.",
+    f1_title: "Agenda", f1_desc: "Organize your commitments clearly. View your day, week and month with category filters.",
+    f2_title: "Tasks", f2_desc: "Manage what needs to be done with priorities, list view, and Eisenhower Matrix for smart focus.",
+    f3_title: "Habits", f3_desc: "Build consistency. Track streaks, categories and quality-of-life, health and wellness metrics.",
+    f4_title: "Focus (Pomodoro)", f4_desc: "Structured focus sessions to boost your productivity and beat procrastination.",
+    f5_title: "Learning", f5_desc: "Learn new languages and keep growing with the vocabulary system integrated into habits.",
+    screens_label: "Screenshots", screens_title: "See Balansy in action", screens_desc: "Clean, modern interface designed for your everyday life.",
+    metrics_label: "Smart indices", metrics_title: "See your day with more clarity",
+    metrics_desc: "Balansy turns your routine into something visible and measurable. Smart indicators help you understand where you're losing focus or energy.",
+    org_index_label: "Organization Index / 100", hab_index_label: "Habits Index / 100",
+    bar_schedule: "Schedule", bar_tasks: "Tasks", bar_focus: "Focus", bar_planning: "Planning",
+    bar_completion: "Completion", bar_consistency: "Consistency", bar_quality: "Quality",
+    how_label: "How it works", how_title: "Productivity that makes sense",
+    how_desc: "It's not about doing more. It's about doing better — with intention, consistency and balance.",
+    step1_title: "Organize your schedule", step1_desc: "Add events, appointments and time blocks. View your day with color-coded categories — Work, Personal, Family and more.",
+    step2_title: "Prioritize your tasks", step2_desc: "Use the classic list or the Eisenhower Matrix to separate the urgent from the important. Integrate Pomodoro to focus without distractions.",
+    step3_title: "Build solid habits", step3_desc: "Track vitamins, meditation, reading, hydration and much more. Maintain streaks and watch your consistency grow week by week.",
+    step4_title: "Track your progress", step4_desc: "Organization and Habits indices turn your behavior into visual data. Understand what works and what needs attention.",
+    quote: '"Small steps create big changes. More clarity. More focus. More consistency."',
+    cta_title: "Start now.\nIt's free.",
+    cta_desc: "Take the first step toward a more balanced routine. Available for iOS and Android.",
+    badge_download: "Download on the",
+    legal_label: "Legal", legal_title: "Terms & Privacy",
+    tab_privacy: "Privacy Policy", tab_terms: "Terms of Use",
+    footer_desc: "Organize your day, balance your life. The complete productivity app for those who seek consistency with ease.",
+    footer_product: "Product", footer_features: "Features", footer_screens: "Screenshots", footer_download: "Download",
+    footer_legal: "Legal", footer_support: "Support", footer_rights: "All rights reserved.",
+  },
+  es: {
+    nav_cta: "Descargar App",
+    hero_badge: "Productividad con equilibrio",
+    hero_h1a: "Equilibra", hero_h1b: "tu rutina.", hero_h1c: "Simplifica", hero_h1d: "tu vida.",
+    hero_desc: "Balansy transforma la manera en que organizas tu día. Más que productividad — es equilibrio entre lo que planeas y lo que realmente ejecutas.",
+    hero_indicator: "Agenda · Tareas · Hábitos · Foco · Aprendizaje",
+    cta_apple: "App Store", cta_google: "Google Play",
+    stat1: "Módulos integrados", stat2: "Índice de organización", stat3: "Hábitos rastreables", stat4: "Tu evolución diaria",
+    feat_label: "Funcionalidades",
+    feat_title: "Todo lo que necesitas,\nen un solo lugar",
+    feat_desc: "Adiós a las apps desconectadas. Balansy integra agenda, tareas, hábitos, foco y aprendizaje en una experiencia coherente y fluida.",
+    f1_title: "Agenda", f1_desc: "Organiza tus compromisos con claridad. Visualiza tu día, semana y mes con filtros por categoría.",
+    f2_title: "Tareas", f2_desc: "Gestiona lo que necesitas hacer con prioridades, lista y Matriz de Eisenhower para un enfoque inteligente.",
+    f3_title: "Hábitos", f3_desc: "Construye consistencia. Rastrea rachas, categorías y métricas de calidad de vida, salud y bienestar.",
+    f4_title: "Foco (Pomodoro)", f4_desc: "Sesiones de foco estructuradas para aumentar tu productividad y vencer la procrastinación.",
+    f5_title: "Aprendizaje", f5_desc: "Aprende nuevos idiomas y evoluciona continuamente con el sistema de vocabulario integrado a los hábitos.",
+    screens_label: "Capturas de pantalla", screens_title: "Ve Balansy en acción", screens_desc: "Interfaz limpia y moderna diseñada para tu día a día.",
+    metrics_label: "Índices inteligentes", metrics_title: "Ve tu día con más claridad",
+    metrics_desc: "Balansy convierte tu rutina en algo visible y medible. Con indicadores inteligentes, entiendes dónde pierdes foco o energía.",
+    org_index_label: "Índice de Organización / 100", hab_index_label: "Índice de Hábitos / 100",
+    bar_schedule: "Agenda", bar_tasks: "Tareas", bar_focus: "Foco", bar_planning: "Planificación",
+    bar_completion: "Completado", bar_consistency: "Consistencia", bar_quality: "Calidad",
+    how_label: "Cómo funciona", how_title: "Productividad que tiene sentido",
+    how_desc: "No se trata de hacer más. Se trata de hacer mejor — con intención, consistencia y equilibrio.",
+    step1_title: "Organiza tu agenda", step1_desc: "Agrega eventos, citas y bloques de tiempo. Visualiza el día con categorías de colores — Trabajo, Personal, Familia y más.",
+    step2_title: "Prioriza tus tareas", step2_desc: "Usa la lista clásica o la Matriz de Eisenhower para separar lo urgente de lo importante. Integra el Pomodoro para enfocarte sin distracciones.",
+    step3_title: "Construye hábitos sólidos", step3_desc: "Rastrea vitaminas, meditación, lectura, hidratación y mucho más. Mantén rachas y mira crecer tu consistencia semana a semana.",
+    step4_title: "Sigue tu progreso", step4_desc: "Los índices de Organización y Hábitos transforman tu comportamiento en datos visuales. Entiende qué funciona y qué necesita atención.",
+    quote: '"Pequeños avances generan grandes cambios. Más claridad. Más foco. Más consistencia."',
+    cta_title: "Empieza ahora.\nEs gratis.",
+    cta_desc: "Da el primer paso hacia una rutina más equilibrada. Disponible para iOS y Android.",
+    badge_download: "Disponible en",
+    legal_label: "Legal", legal_title: "Términos y Privacidad",
+    tab_privacy: "Política de Privacidad", tab_terms: "Términos de Uso",
+    footer_desc: "Organiza tu día, equilibra tu vida. La app de productividad completa para quienes buscan consistencia con ligereza.",
+    footer_product: "Producto", footer_features: "Funcionalidades", footer_screens: "Capturas", footer_download: "Descargar",
+    footer_legal: "Legal", footer_support: "Soporte", footer_rights: "Todos los derechos reservados.",
+  },
+  it: {
+    nav_cta: "Scarica App",
+    hero_badge: "Produttività con equilibrio",
+    hero_h1a: "Equilibra", hero_h1b: "la tua routine.", hero_h1c: "Semplifica", hero_h1d: "la tua vita.",
+    hero_desc: "Balansy trasforma il modo in cui organizzi la tua giornata. Più che produttività — è equilibrio tra ciò che pianifichi e ciò che realizzi davvero.",
+    hero_indicator: "Agenda · Attività · Abitudini · Focus · Apprendimento",
+    cta_apple: "App Store", cta_google: "Google Play",
+    stat1: "Moduli integrati", stat2: "Indice di organizzazione", stat3: "Abitudini tracciabili", stat4: "La tua evoluzione quotidiana",
+    feat_label: "Funzionalità",
+    feat_title: "Tutto ciò di cui hai bisogno,\nin un solo posto",
+    feat_desc: "Basta con le app disconnesse. Balansy integra agenda, attività, abitudini, focus e apprendimento in un'esperienza coesa e fluida.",
+    f1_title: "Agenda", f1_desc: "Organizza i tuoi impegni con chiarezza. Visualizza giorno, settimana e mese con filtri per categoria.",
+    f2_title: "Attività", f2_desc: "Gestisci ciò che devi fare con priorità, lista e Matrice di Eisenhower per un focus intelligente.",
+    f3_title: "Abitudini", f3_desc: "Costruisci coerenza. Traccia streak, categorie e metriche di qualità della vita, salute e benessere.",
+    f4_title: "Focus (Pomodoro)", f4_desc: "Sessioni di focus strutturate per aumentare la tua produttività e battere la procrastinazione.",
+    f5_title: "Apprendimento", f5_desc: "Impara nuove lingue e cresci continuamente con il sistema di vocabolario integrato nelle abitudini.",
+    screens_label: "Screenshot", screens_title: "Vedi Balansy in azione", screens_desc: "Interfaccia pulita e moderna pensata per la tua vita quotidiana.",
+    metrics_label: "Indici intelligenti", metrics_title: "Vedi la tua giornata con più chiarezza",
+    metrics_desc: "Balansy trasforma la tua routine in qualcosa di visibile e misurabile. Gli indicatori intelligenti ti aiutano a capire dove perdi focus o energia.",
+    org_index_label: "Indice di Organizzazione / 100", hab_index_label: "Indice delle Abitudini / 100",
+    bar_schedule: "Agenda", bar_tasks: "Attività", bar_focus: "Focus", bar_planning: "Pianificazione",
+    bar_completion: "Completamento", bar_consistency: "Consistenza", bar_quality: "Qualità",
+    how_label: "Come funziona", how_title: "Produttività che ha senso",
+    how_desc: "Non si tratta di fare di più. Si tratta di fare meglio — con intenzione, coerenza ed equilibrio.",
+    step1_title: "Organizza la tua agenda", step1_desc: "Aggiungi eventi, appuntamenti e blocchi di tempo. Visualizza la giornata con categorie colorate — Lavoro, Personale, Famiglia e altro.",
+    step2_title: "Prioritizza le tue attività", step2_desc: "Usa la lista classica o la Matrice di Eisenhower per separare l'urgente dall'importante. Integra il Pomodoro per concentrarti senza distrazioni.",
+    step3_title: "Costruisci abitudini solide", step3_desc: "Traccia vitamine, meditazione, lettura, idratazione e molto altro. Mantieni le streak e guarda crescere la tua coerenza settimana dopo settimana.",
+    step4_title: "Monitora i tuoi progressi", step4_desc: "Gli indici di Organizzazione e Abitudini trasformano il tuo comportamento in dati visivi. Capisci cosa funziona e cosa ha bisogno di attenzione.",
+    quote: '"Piccoli progressi generano grandi cambiamenti. Più chiarezza. Più focus. Più coerenza."',
+    cta_title: "Inizia ora.\nÈ gratuito.",
+    cta_desc: "Fai il primo passo verso una routine più equilibrata. Disponibile per iOS e Android.",
+    badge_download: "Disponibile su",
+    legal_label: "Legale", legal_title: "Termini e Privacy",
+    tab_privacy: "Informativa sulla Privacy", tab_terms: "Termini di Utilizzo",
+    footer_desc: "Organizza la tua giornata, equilibra la tua vita. L'app di produttività completa per chi cerca coerenza con leggerezza.",
+    footer_product: "Prodotto", footer_features: "Funzionalità", footer_screens: "Screenshot", footer_download: "Download",
+    footer_legal: "Legale", footer_support: "Supporto", footer_rights: "Tutti i diritti riservati.",
+  }
+};
+
+/* ============================================================
+   LEGAL DOCUMENTS
+============================================================ */
+const legalDocs = {
+  privacy: {
+    pt: `<h2>Política de Privacidade – Balansy</h2>
+<span class="legal-updated">Última atualização: 26 de abril de 2026</span>
+<hr class="divider"/>
+<h3>1. Introdução</h3>
+<p>Bem-vindo ao Balansy. Esta Política de Privacidade descreve como coletamos, usamos e protegemos seus dados pessoais ao utilizar o aplicativo Balansy ("App").</p>
+<p>Ao usar o Balansy, você concorda com esta política. Se não concordar, não utilize o App.</p>
+<hr class="divider"/>
+<h3>2. Dados Coletados</h3>
+<h3>2.1 Dados Fornecidos pelo Usuário</h3>
+<ul><li>Nome ou apelido</li><li>E-mail (se o login estiver habilitado)</li><li>Tarefas, hábitos e entradas pessoais</li><li>Dados de uso do App</li></ul>
+<h3>2.2 Dados Coletados Automaticamente</h3>
+<ul><li>Informações do dispositivo (modelo, sistema operacional)</li><li>Dados de uso do App (interações, funcionalidades utilizadas)</li><li>Logs de erros e diagnósticos</li></ul>
+<h3>2.3 Dados Sensíveis</h3>
+<p>O Balansy não coleta intencionalmente dados pessoais sensíveis, exceto aqueles fornecidos explicitamente pelo usuário.</p>
+<hr class="divider"/>
+<h3>3. Finalidade do Tratamento de Dados</h3>
+<p>Seus dados são utilizados para: operar e melhorar o App; sincronizar seus dados (se os recursos em nuvem estiverem habilitados); fornecer análises e melhorias de desempenho; corrigir bugs e problemas técnicos.</p>
+<hr class="divider"/>
+<h3>4. Armazenamento e Segurança</h3>
+<p>Os dados podem ser armazenados localmente e/ou em servidores de nuvem seguros. Medidas técnicas razoáveis são aplicadas. Nenhum sistema é 100% seguro.</p>
+<hr class="divider"/>
+<h3>5. Seus Direitos (LGPD)</h3>
+<ul><li>Acesso aos seus dados</li><li>Correção de dados imprecisos</li><li>Exclusão de dados</li><li>Retirada do consentimento</li><li>Portabilidade de dados</li></ul>
+<p>Para exercer seus direitos, entre em contato: <a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>
+<hr class="divider"/>
+<h3>6. Retenção de Dados</h3>
+<p>Os dados são retidos enquanto necessário para o funcionamento do App. Você pode solicitar a exclusão a qualquer momento.</p>
+<hr class="divider"/>
+<h3>7. Serviços de Terceiros</h3>
+<p>O Balansy pode utilizar serviços de terceiros (provedores de análise, armazenamento em nuvem) que processam dados conforme suas próprias políticas.</p>
+<hr class="divider"/>
+<h3>8. Privacidade de Crianças</h3>
+<p>O Balansy não é direcionado a menores de 13 anos e não coleta intencionalmente dados de crianças.</p>
+<hr class="divider"/>
+<h3>9. Alterações</h3>
+<p>Esta política pode ser atualizada a qualquer momento. Usuários serão notificados via App.</p>
+<hr class="divider"/>
+<h3>10. Contato</h3>
+<p><a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>`,
+
+    en: `<h2>Privacy Policy – Balansy</h2>
+<span class="legal-updated">Last updated: April 26, 2026</span>
+<hr class="divider"/>
+<h3>1. Introduction</h3>
+<p>Welcome to Balansy. This Privacy Policy describes how we collect, use, and protect your personal data when using the Balansy app ("App").</p>
+<p>By using Balansy, you agree to this policy. If you do not agree, do not use the App.</p>
+<hr class="divider"/>
+<h3>2. Data We Collect</h3>
+<h3>2.1 User-Provided Data</h3>
+<ul><li>Name or nickname</li><li>Email (if login is enabled)</li><li>Tasks, habits and personal entries</li><li>App usage inputs</li></ul>
+<h3>2.2 Automatically Collected Data</h3>
+<ul><li>Device information (model, OS)</li><li>App usage data (interactions, features used)</li><li>Crash logs and diagnostics</li></ul>
+<h3>2.3 Sensitive Data</h3>
+<p>Balansy does not intentionally collect sensitive personal data, unless explicitly provided by the user.</p>
+<hr class="divider"/>
+<h3>3. Purpose of Data Processing</h3>
+<p>Your data is used to: operate and improve the App; synchronize your data (if cloud features are enabled); provide analytics and performance improvements; fix bugs and technical issues.</p>
+<hr class="divider"/>
+<h3>4. Storage and Security</h3>
+<p>Data may be stored locally and/or in secure cloud servers. Reasonable technical safeguards are applied. No system is 100% secure.</p>
+<hr class="divider"/>
+<h3>5. Your Rights (GDPR / LGPD)</h3>
+<ul><li>Access your data</li><li>Correct inaccurate data</li><li>Request deletion of data</li><li>Withdraw consent</li><li>Request data portability</li></ul>
+<p>To exercise your rights, contact: <a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>
+<hr class="divider"/>
+<h3>6. Data Retention</h3>
+<p>Data is retained as long as necessary for app functionality. You may request deletion at any time.</p>
+<hr class="divider"/>
+<h3>7. Third-Party Services</h3>
+<p>Balansy may use third-party services (analytics providers, cloud storage) that process data according to their own policies.</p>
+<hr class="divider"/>
+<h3>8. Children's Privacy</h3>
+<p>Balansy is not directed to children under 13 and does not knowingly collect data from children.</p>
+<hr class="divider"/>
+<h3>9. Changes</h3>
+<p>This policy may be updated at any time. Users will be notified via the App.</p>
+<hr class="divider"/>
+<h3>10. Contact</h3>
+<p><a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>`,
+
+    es: `<h2>Política de Privacidad – Balansy</h2>
+<span class="legal-updated">Última actualización: 26 de abril de 2026</span>
+<hr class="divider"/>
+<h3>1. Introducción</h3>
+<p>Bienvenido a Balansy. Esta Política de Privacidad describe cómo recopilamos, usamos y protegemos tus datos personales al utilizar la aplicación Balansy ("App").</p>
+<p>Al usar Balansy, aceptas esta política. Si no estás de acuerdo, no uses la App.</p>
+<hr class="divider"/>
+<h3>2. Datos que Recopilamos</h3>
+<ul><li>Nombre o apodo</li><li>Correo electrónico (si el inicio de sesión está habilitado)</li><li>Tareas, hábitos y entradas personales</li><li>Información del dispositivo y datos de uso</li></ul>
+<hr class="divider"/>
+<h3>3. Finalidad del Tratamiento</h3>
+<p>Tus datos se utilizan para operar y mejorar la App, sincronizar datos en la nube, proporcionar análisis y corregir errores técnicos.</p>
+<hr class="divider"/>
+<h3>4. Tus Derechos</h3>
+<ul><li>Acceder a tus datos</li><li>Corregir datos inexactos</li><li>Solicitar eliminación</li><li>Retirar el consentimiento</li><li>Portabilidad de datos</li></ul>
+<p>Contacto: <a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>
+<hr class="divider"/>
+<h3>5. Cambios</h3>
+<p>Esta política puede actualizarse en cualquier momento. Los usuarios serán notificados mediante la App.</p>`,
+
+    it: `<h2>Informativa sulla Privacy – Balansy</h2>
+<span class="legal-updated">Ultimo aggiornamento: 26 aprile 2026</span>
+<hr class="divider"/>
+<h3>1. Introduzione</h3>
+<p>Benvenuto su Balansy. Questa Informativa sulla Privacy descrive come raccogliamo, utilizziamo e proteggiamo i tuoi dati personali quando usi l'app Balansy ("App").</p>
+<p>Usando Balansy, accetti questa informativa. Se non sei d'accordo, non usare l'App.</p>
+<hr class="divider"/>
+<h3>2. Dati Raccolti</h3>
+<ul><li>Nome o soprannome</li><li>Email (se il login è abilitato)</li><li>Attività, abitudini e note personali</li><li>Informazioni sul dispositivo e dati d'uso</li></ul>
+<hr class="divider"/>
+<h3>3. Finalità del Trattamento</h3>
+<p>I tuoi dati vengono utilizzati per operare e migliorare l'App, sincronizzare i dati nel cloud, fornire analisi e correggere problemi tecnici.</p>
+<hr class="divider"/>
+<h3>4. I Tuoi Diritti (GDPR)</h3>
+<ul><li>Accedere ai tuoi dati</li><li>Correggere dati inesatti</li><li>Richiedere la cancellazione</li><li>Revocare il consenso</li><li>Richiedere la portabilità dei dati</li></ul>
+<p>Contatto: <a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>
+<hr class="divider"/>
+<h3>5. Modifiche</h3>
+<p>Questa informativa può essere aggiornata in qualsiasi momento. Gli utenti verranno notificati tramite l'App.</p>`
+  },
+
+  terms: {
+    pt: `<h2>Termos de Uso – Balansy</h2>
+<span class="legal-updated">Última atualização: 26 de abril de 2026</span>
+<hr class="divider"/>
+<h3>1. Introdução</h3>
+<p>Bem-vindo ao Balansy. Estes Termos de Uso regem o acesso e uso do aplicativo Balansy ("App"). Ao usar o Balansy, você concorda com estes termos.</p>
+<hr class="divider"/>
+<h3>2. Finalidade do App</h3>
+<p>O Balansy é uma ferramenta pessoal de produtividade e autogestão projetada para ajudar usuários a: organizar rotinas diárias; gerenciar tarefas e compromissos; acompanhar hábitos; melhorar o foco (Pomodoro); apoiar atividades de aprendizado.</p>
+<p><strong>⚠️ Importante:</strong> O Balansy NÃO fornece aconselhamento médico, psicológico ou profissional.</p>
+<hr class="divider"/>
+<h3>3. Elegibilidade</h3>
+<p>Você deve ter pelo menos 13 anos (ou a idade mínima em seu país) e estar legalmente apto a aceitar estes Termos.</p>
+<hr class="divider"/>
+<h3>4. Responsabilidades do Usuário</h3>
+<p>Você concorda em: fornecer informações precisas; usar o App de forma lícita; não tentar fazer engenharia reversa ou explorar o App; não fazer uso indevido do sistema.</p>
+<hr class="divider"/>
+<h3>5. Propriedade Intelectual</h3>
+<p>Todos os direitos relacionados ao Balansy (design, código, funcionalidades) pertencem aos seus criadores. Você não pode copiar, distribuir ou modificar o App sem permissão.</p>
+<hr class="divider"/>
+<h3>6. Limitação de Responsabilidade</h3>
+<p>O Balansy é fornecido "COMO ESTÁ". Não somos responsáveis por: perda de dados; tarefas ou compromissos perdidos; resultados de produtividade; danos financeiros, pessoais ou profissionais; bugs, interrupções ou tempo de inatividade.</p>
+<hr class="divider"/>
+<h3>7. Rescisão</h3>
+<p>Podemos suspender ou encerrar o acesso em caso de violação dos Termos. Usuários podem parar de usar o App a qualquer momento.</p>
+<hr class="divider"/>
+<h3>8. Alterações nos Termos</h3>
+<p>Podemos atualizar estes Termos a qualquer momento. O uso continuado implica aceitação das atualizações.</p>
+<hr class="divider"/>
+<h3>9. Lei Aplicável</h3>
+<p>Este acordo é regido pela lei brasileira (LGPD – Lei nº 13.709/2018).</p>
+<hr class="divider"/>
+<h3>10. Contato</h3>
+<p><a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>`,
+
+    en: `<h2>Terms of Use – Balansy</h2>
+<span class="legal-updated">Last updated: April 26, 2026</span>
+<hr class="divider"/>
+<h3>1. Introduction</h3>
+<p>Welcome to Balansy. These Terms of Use govern your access and use of the Balansy app ("App"). By using Balansy, you agree to these terms.</p>
+<hr class="divider"/>
+<h3>2. Purpose of the App</h3>
+<p>Balansy is a personal productivity and self-management tool designed to help users: organize daily routines; manage tasks and commitments; track habits; improve focus (Pomodoro); support learning activities.</p>
+<p><strong>⚠️ Important:</strong> Balansy does NOT provide medical, psychological, or professional advice.</p>
+<hr class="divider"/>
+<h3>3. Eligibility</h3>
+<p>You must be at least 13 years old (or minimum age in your country) and legally able to accept these Terms.</p>
+<hr class="divider"/>
+<h3>4. User Responsibilities</h3>
+<p>You agree to: provide accurate information; use the App lawfully; not attempt to reverse engineer or exploit the App; not misuse the system.</p>
+<hr class="divider"/>
+<h3>5. Intellectual Property</h3>
+<p>All rights related to Balansy (design, code, features) belong to its creators. You may not copy, distribute, or modify the App without permission.</p>
+<hr class="divider"/>
+<h3>6. Limitation of Liability</h3>
+<p>Balansy is provided "AS IS". We are NOT liable for: data loss; missed tasks or commitments; productivity outcomes; financial, personal, or professional damages; bugs, interruptions, or downtime.</p>
+<hr class="divider"/>
+<h3>7. Termination</h3>
+<p>We may suspend or terminate access if Terms are violated. Users may stop using the App at any time.</p>
+<hr class="divider"/>
+<h3>8. Changes to Terms</h3>
+<p>We may update these Terms at any time. Continued use means acceptance of updates.</p>
+<hr class="divider"/>
+<h3>9. Governing Law</h3>
+<p>This agreement is governed by Brazilian Law (LGPD – Lei nº 13.709/2018).</p>
+<hr class="divider"/>
+<h3>10. Contact</h3>
+<p><a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>`,
+
+    es: `<h2>Términos de Uso – Balansy</h2>
+<span class="legal-updated">Última actualización: 26 de abril de 2026</span>
+<hr class="divider"/>
+<h3>1. Introducción</h3>
+<p>Bienvenido a Balansy. Estos Términos de Uso rigen tu acceso y uso de la aplicación Balansy ("App"). Al usar Balansy, aceptas estos términos.</p>
+<hr class="divider"/>
+<h3>2. Finalidad de la App</h3>
+<p>Balansy es una herramienta personal de productividad y autogestión. <strong>⚠️ No proporciona asesoramiento médico, psicológico ni profesional.</strong></p>
+<hr class="divider"/>
+<h3>3. Elegibilidad</h3>
+<p>Debes tener al menos 13 años y estar legalmente habilitado para aceptar estos Términos.</p>
+<hr class="divider"/>
+<h3>4. Limitación de Responsabilidad</h3>
+<p>Balansy se proporciona "TAL CUAL". No somos responsables de pérdida de datos, resultados de productividad ni daños de ningún tipo.</p>
+<hr class="divider"/>
+<h3>5. Ley Aplicable</h3>
+<p>Este acuerdo se rige por la ley brasileña (LGPD – Lei nº 13.709/2018).</p>
+<hr class="divider"/>
+<h3>6. Contacto</h3>
+<p><a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>`,
+
+    it: `<h2>Termini di Utilizzo – Balansy</h2>
+<span class="legal-updated">Ultimo aggiornamento: 26 aprile 2026</span>
+<hr class="divider"/>
+<h3>1. Introduzione</h3>
+<p>Benvenuto su Balansy. Questi Termini di Utilizzo regolano il tuo accesso e utilizzo dell'app Balansy ("App"). Usando Balansy, accetti questi termini.</p>
+<hr class="divider"/>
+<h3>2. Finalità dell'App</h3>
+<p>Balansy è uno strumento personale di produttività. <strong>⚠️ Non fornisce consulenza medica, psicologica o professionale.</strong></p>
+<hr class="divider"/>
+<h3>3. Idoneità</h3>
+<p>Devi avere almeno 13 anni ed essere legalmente in grado di accettare questi Termini.</p>
+<hr class="divider"/>
+<h3>4. Limitazione di Responsabilità</h3>
+<p>Balansy è fornita "COSÌ COM'È". Non siamo responsabili per perdita di dati, risultati di produttività o danni di qualsiasi tipo.</p>
+<hr class="divider"/>
+<h3>5. Legge Applicabile</h3>
+<p>Questo accordo è regolato dalla legge brasiliana (LGPD – Lei nº 13.709/2018).</p>
+<hr class="divider"/>
+<h3>6. Contatto</h3>
+<p><a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>`
+  }
+};
+
+/* ============================================================
+   LANGUAGE DETECTION & SWITCHING
+============================================================ */
+let currentLang = 'pt';
+
+function detectLang() {
+  const nav = (navigator.language || navigator.userLanguage || 'pt').substring(0,2).toLowerCase();
+  if (['pt','en','es','it'].includes(nav)) return nav;
+  return 'pt';
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang;
+
+  // Update all translated elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (i18n[lang] && i18n[lang][key]) {
+      el.textContent = i18n[lang][key];
+    }
+  });
+
+  // Update lang buttons
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+  });
+
+  // Update legal docs
+  updateLegalDocs();
+}
+
+function updateLegalDocs() {
+  const privEl = document.getElementById('privacy-text');
+  const termsEl = document.getElementById('terms-text');
+  if (privEl) privEl.innerHTML = legalDocs.privacy[currentLang] || legalDocs.privacy.en;
+  if (termsEl) termsEl.innerHTML = legalDocs.terms[currentLang] || legalDocs.terms.en;
+}
+
+/* ============================================================
+   LEGAL TABS
+============================================================ */
+function showLegal(tab) {
+  document.querySelectorAll('.legal-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.legal-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('legal-' + tab).classList.add('active');
+  const tabs = document.querySelectorAll('.legal-tab');
+  tabs[tab === 'privacy' ? 0 : 1].classList.add('active');
+}
+
+/* ============================================================
+   SCROLL ANIMATIONS
+============================================================ */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      // Animate bars when metrics section reveals
+      const bars = entry.target.querySelectorAll('.bar-fill');
+      if (bars.length) {
+        setTimeout(() => bars.forEach(b => b.classList.add('animated')), 200);
+      }
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+/* ============================================================
+   NAV SCROLL
+============================================================ */
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  const btn = document.getElementById('scrollTopBtn');
+  if (window.scrollY > 60) {
+    nav.classList.add('scrolled');
+    btn.classList.add('visible');
+  } else {
+    nav.classList.remove('scrolled');
+    btn.classList.remove('visible');
+  }
+});
+
+/* ============================================================
+   INIT
+============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  const lang = detectLang();
+  setLang(lang);
+});
+</script>
+</body>
+</html>
