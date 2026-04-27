@@ -207,18 +207,27 @@ nav.scrolled{background:rgba(255,255,255,.92);backdrop-filter:blur(12px);box-sha
 .cta-btns{display:flex;justify-content:center;flex-wrap:wrap;gap:13px}
 .cta-note{margin-top:18px;font-size:.8rem;color:var(--gray3)}
 
-/* LEGAL */
-.legal{padding:70px 5% 0;max-width:880px;margin:0 auto}
-.ltabs{display:flex;gap:8px;margin-bottom:30px;border-bottom:2px solid #eee}
-.ltab{padding:12px 22px;font-family:var(--font-b);font-weight:600;font-size:.88rem;background:none;border:none;cursor:pointer;color:var(--gray3);border-bottom:3px solid transparent;margin-bottom:-2px;transition:color .2s,border-color .2s}
-.ltab.active{color:var(--purple);border-bottom-color:var(--purple)}
-.lcontent{display:none;padding:0 0 60px}
-.lcontent.active{display:block}
-.lcontent h2{font-family:var(--font-d);font-size:1.45rem;font-weight:700;margin:26px 0 10px}
-.lcontent h3{font-family:var(--font-d);font-size:1.05rem;font-weight:700;margin:18px 0 7px}
-.lcontent p,.lcontent li{font-size:.88rem;color:var(--gray2);line-height:1.7;margin-bottom:9px}
-.lcontent ul{padding-left:18px}
-.ldate{font-size:.78rem;color:var(--gray3);margin-bottom:26px}
+/* MODAL LEGAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{background:#fff;border-radius:22px;width:100%;max-width:720px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;transform:translateY(24px) scale(.97);transition:transform .25s}
+.modal-overlay.open .modal-box{transform:translateY(0) scale(1)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:22px 28px 0;flex-shrink:0}
+.modal-tabs{display:flex;gap:6px}
+.modal-tab{padding:9px 18px;border-radius:99px;border:none;font-family:var(--font-b);font-size:.85rem;font-weight:600;cursor:pointer;background:transparent;color:var(--gray3);transition:background .2s,color .2s}
+.modal-tab.active{background:var(--purple);color:#fff}
+.modal-close{width:34px;height:34px;border-radius:50%;border:none;background:#f0f0f2;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.modal-close:hover{background:#e0e0e4}
+.modal-body{overflow-y:auto;padding:24px 28px 36px;flex:1}
+.modal-body h2{font-family:var(--font-d);font-size:1.5rem;font-weight:800;letter-spacing:-.5px;margin:0 0 6px}
+.modal-body .ldate{font-size:.77rem;color:var(--gray3);margin-bottom:22px;display:block}
+.modal-body h3{font-family:var(--font-d);font-size:1rem;font-weight:700;margin:22px 0 7px;color:var(--dark)}
+.modal-body p,.modal-body li{font-size:.88rem;color:var(--gray2);line-height:1.75;margin-bottom:8px}
+.modal-body ul,.modal-body ol{padding-left:20px;margin-bottom:12px}
+.modal-body a{color:var(--purple)}
+.modal-body strong{color:var(--dark)}
+.modal-content{display:none}.modal-content.active{display:block}
+
 
 /* FOOTER */
 footer{background:var(--dark);color:rgba(255,255,255,.45);padding:50px 5% 36px}
@@ -539,23 +548,30 @@ footer{background:var(--dark);color:rgba(255,255,255,.45);padding:50px 5% 36px}
   </div>
 </section>
 
-<!-- LEGAL -->
-<section class="legal">
-  <div class="ltabs">
-    <button class="ltab active" onclick="showLegal('privacy',this)" data-i="lp">Política de Privacidade</button>
-    <button class="ltab" onclick="showLegal('terms',this)" data-i="lt">Termos de Uso</button>
+<!-- MODAL LEGAL -->
+<div id="modal-legal" class="modal-overlay" onclick="if(event.target===this)closeLegal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-tabs">
+        <button class="modal-tab active" id="mtab-privacy" onclick="switchLegal('privacy')" data-i="lp">Política de Privacidade</button>
+        <button class="modal-tab" id="mtab-terms" onclick="switchLegal('terms')" data-i="lt">Termos de Uso</button>
+      </div>
+      <button class="modal-close" onclick="closeLegal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="mc-privacy" class="modal-content active"></div>
+      <div id="mc-terms" class="modal-content"></div>
+    </div>
   </div>
-  <div id="l-privacy" class="lcontent active" data-legal="privacy"></div>
-  <div id="l-terms" class="lcontent" data-legal="terms"></div>
-</section>
+</div>
 
 <footer>
   <div class="fin">
     <div class="fb"><img src="assets/logo.png" alt="Balansy"><span>Balansy</span></div>
     <div class="flinks">
       <a href="mailto:subsolo.4.criticar@icloud.com" data-i="fc">Contato & Suporte</a>
-      <a href="#" onclick="showLegal('privacy',document.querySelector('.ltab'));document.querySelector('.legal').scrollIntoView({behavior:'smooth'});return false" data-i="fp">Privacidade</a>
-      <a href="#" onclick="showLegal('terms',document.querySelectorAll('.ltab')[1]);document.querySelector('.legal').scrollIntoView({behavior:'smooth'});return false" data-i="ft">Termos</a>
+      <a href="#" onclick="openLegal('privacy');return false" data-i="fp">Privacidade</a>
+      <a href="#" onclick="openLegal('terms');return false" data-i="ft">Termos</a>
     </div>
     <p class="fcopy" data-i="fco">© 2026 Balansy. Todos os direitos reservados.</p>
   </div>
@@ -570,22 +586,268 @@ it:{nav_cta:"Scarica gratis",hero_badge:"Novità: Punteggi di Produttività con 
 };
 const LEGAL={
 privacy:{
-pt:`<h2>Política de Privacidade</h2><p class="ldate">Última atualização: 26 de abril de 2026</p><p>O Balansy respeita sua privacidade e está comprometido em proteger suas informações pessoais.</p><h3>1. Dados coletados</h3><p>Coletamos informações que você fornece ao criar sua conta e usar o app, incluindo nome, e-mail, dados de tarefas, hábitos e agenda. Não vendemos seus dados.</p><h3>2. Uso dos dados</h3><p>Seus dados são usados exclusivamente para fornecer e melhorar as funcionalidades do app. Não compartilhamos informações pessoais com terceiros, exceto quando exigido por lei.</p><h3>3. Segurança</h3><p>Todos os dados de produtividade são armazenados localmente no seu dispositivo. Caso utilize sincronização em nuvem, os dados são criptografados em trânsito e em repouso.</p><h3>4. Seus direitos</h3><p>Você pode solicitar acesso, correção ou exclusão dos seus dados a qualquer momento pelo e-mail <a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a>.</p>`,
-en:`<h2>Privacy Policy</h2><p class="ldate">Last updated: April 26, 2026</p><p>Balansy respects your privacy and is committed to protecting your personal information.</p><h3>1. Data collected</h3><p>We collect information you provide when creating your account and using the app, including name, email, tasks, habits, and schedule data. We do not sell your data.</p><h3>2. Use of data</h3><p>Your data is used solely to provide and improve app features. We do not share personal information with third parties, except as required by law.</p><h3>3. Security</h3><p>All productivity data is stored locally on your device. If cloud sync is used, data is encrypted in transit and at rest.</p><h3>4. Your rights</h3><p>You may request access, correction, or deletion of your data at any time by contacting <a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a>.</p>`,
-es:`<h2>Política de Privacidad</h2><p class="ldate">Última actualización: 26 de abril de 2026</p><p>Balansy respeta tu privacidad y está comprometido a proteger tu información personal.</p><h3>1. Datos recopilados</h3><p>Recopilamos información que proporcionas al crear tu cuenta y usar la app. No vendemos tus datos.</p><h3>2. Uso de datos</h3><p>Tus datos se utilizan exclusivamente para proporcionar y mejorar las funciones de la app.</p><h3>3. Seguridad</h3><p>Todos los datos se almacenan localmente en tu dispositivo. Si usas sincronización en la nube, los datos están cifrados.</p><h3>4. Tus derechos</h3><p>Puedes solicitar acceso o eliminación de tus datos contactando a <a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a>.</p>`,
-it:`<h2>Politica sulla Privacy</h2><p class="ldate">Ultimo aggiornamento: 26 aprile 2026</p><p>Balansy rispetta la tua privacy ed è impegnata a proteggere le tue informazioni personali.</p><h3>1. Dati raccolti</h3><p>Raccogliamo le informazioni che fornisci creando il tuo account e usando l'app. Non vendiamo i tuoi dati.</p><h3>2. Uso dei dati</h3><p>I tuoi dati vengono utilizzati esclusivamente per fornire e migliorare le funzionalità dell'app.</p><h3>3. Sicurezza</h3><p>Tutti i dati sono archiviati localmente sul tuo dispositivo. Se viene utilizzata la sincronizzazione cloud, i dati sono crittografati.</p><h3>4. I tuoi diritti</h3><p>Puoi richiedere accesso o cancellazione dei tuoi dati contattando <a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a>.</p>`
+pt:`<h2>Política de Privacidade</h2><span class="ldate">Última atualização: 26 de abril de 2026</span>
+<p>Esta Política de Privacidade descreve como o <strong>Balansy</strong> coleta, usa, armazena e protege as informações dos seus usuários. Ao usar o aplicativo, você concorda com as práticas descritas neste documento.</p>
+<h3>1. Quem somos</h3>
+<p>O Balansy é um aplicativo de produtividade pessoal desenvolvido e mantido por Maicon Scariotti Lucca ("nós", "nosso"). Para dúvidas sobre privacidade, entre em contato pelo e-mail <a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a>.</p>
+<h3>2. Dados que coletamos</h3>
+<p><strong>2.1 Dados fornecidos pelo usuário:</strong></p>
+<ul><li>Nome e endereço de e-mail (somente se você criar uma conta)</li><li>Tarefas, hábitos, eventos de agenda e sessões de foco que você registra no app</li><li>Preferências de configuração e personalização</li></ul>
+<p><strong>2.2 Dados coletados automaticamente:</strong></p>
+<ul><li>Modelo e sistema operacional do dispositivo</li><li>Versão do aplicativo instalada</li><li>Dados de diagnóstico e logs de erro (para correção de falhas)</li><li>Dados de desempenho agregados e anonimizados</li></ul>
+<p><strong>2.3 Dados que NÃO coletamos:</strong></p>
+<ul><li>Localização geográfica precisa</li><li>Dados de câmera ou microfone</li><li>Contatos ou agenda do dispositivo</li><li>Dados de outras aplicações</li></ul>
+<h3>3. Como usamos seus dados</h3>
+<p>Utilizamos seus dados exclusivamente para:</p>
+<ul><li>Fornecer as funcionalidades do aplicativo (agenda, tarefas, hábitos, foco)</li><li>Sincronizar seus dados entre dispositivos (se você ativar a sincronização em nuvem)</li><li>Calcular seus índices de produtividade e consistência</li><li>Corrigir erros e melhorar o desempenho do app</li><li>Enviar comunicações sobre o serviço, caso você opte por isso</li></ul>
+<p><strong>Não utilizamos seus dados para publicidade, perfis comportamentais ou qualquer finalidade comercial não declarada.</strong></p>
+<h3>4. Armazenamento e segurança</h3>
+<p><strong>Armazenamento local:</strong> Por padrão, todos os seus dados de produtividade são armazenados localmente no seu dispositivo. Você tem controle total sobre eles.</p>
+<p><strong>Sincronização em nuvem:</strong> Se você ativar a sincronização, os dados são transmitidos e armazenados com criptografia AES-256 em trânsito (TLS 1.3) e em repouso.</p>
+<p><strong>Retenção:</strong> Os dados são mantidos enquanto sua conta estiver ativa. Após a exclusão da conta, todos os dados são removidos permanentemente em até 30 dias.</p>
+<h3>5. Compartilhamento de dados</h3>
+<p>Não vendemos, alugamos nem compartilhamos seus dados pessoais com terceiros, exceto nos seguintes casos:</p>
+<ul><li><strong>Prestadores de serviço:</strong> Podemos usar serviços técnicos de terceiros (hospedagem, análise de erros) sob contratos de confidencialidade rigorosos</li><li><strong>Obrigação legal:</strong> Quando exigido por ordem judicial ou autoridade competente</li><li><strong>Proteção de direitos:</strong> Para proteger os direitos, propriedade ou segurança do Balansy e de seus usuários</li></ul>
+<h3>6. Seus direitos (LGPD)</h3>
+<p>Em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), você tem os seguintes direitos:</p>
+<ul><li><strong>Acesso:</strong> Solicitar confirmação e acesso aos seus dados pessoais</li><li><strong>Correção:</strong> Solicitar a correção de dados incompletos, inexatos ou desatualizados</li><li><strong>Anonimização ou exclusão:</strong> Solicitar a anonimização, bloqueio ou eliminação de dados desnecessários</li><li><strong>Portabilidade:</strong> Receber seus dados em formato estruturado e interoperável</li><li><strong>Revogação do consentimento:</strong> Retirar seu consentimento a qualquer momento</li><li><strong>Oposição:</strong> Se opor a tratamento de dados realizado com fundamento em outras bases legais</li></ul>
+<p>Para exercer qualquer desses direitos, entre em contato pelo e-mail <a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a>. Responderemos em até 15 dias úteis.</p>
+<h3>7. Crianças e adolescentes</h3>
+<p>O Balansy não é direcionado a menores de 13 anos. Não coletamos intencionalmente dados de crianças. Caso identifiquemos dados de um menor, os excluiremos imediatamente. Se você é responsável por uma criança que utilizou o app, entre em contato conosco.</p>
+<h3>8. Cookies e rastreamento</h3>
+<p>O aplicativo móvel não utiliza cookies. O site do Balansy pode utilizar cookies funcionais essenciais para garantir o funcionamento adequado das páginas. Não utilizamos cookies de rastreamento publicitário ou de perfis comportamentais.</p>
+<h3>9. Transferências internacionais</h3>
+<p>Caso seus dados sejam processados fora do Brasil, garantimos que isso ocorra em conformidade com a LGPD, com salvaguardas adequadas para proteger suas informações.</p>
+<h3>10. Alterações nesta política</h3>
+<p>Podemos atualizar esta Política periodicamente. Notificaremos você sobre alterações significativas por meio do aplicativo ou por e-mail. O uso continuado do app após a notificação implica aceitação das mudanças.</p>
+<h3>11. Contato</h3>
+<p>Para questões relacionadas à privacidade ou ao tratamento dos seus dados, entre em contato:<br><a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>`,
+
+en:`<h2>Privacy Policy</h2><span class="ldate">Last updated: April 26, 2026</span>
+<p>This Privacy Policy describes how <strong>Balansy</strong> collects, uses, stores and protects user information. By using the app, you agree to the practices described in this document.</p>
+<h3>1. Who we are</h3>
+<p>Balansy is a personal productivity app developed and maintained by Maicon Scariotti Lucca ("we", "our"). For privacy-related questions, contact us at <a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a>.</p>
+<h3>2. Data we collect</h3>
+<p><strong>2.1 Data you provide:</strong></p>
+<ul><li>Name and email address (only if you create an account)</li><li>Tasks, habits, calendar events, and focus sessions you record in the app</li><li>Settings and personalization preferences</li></ul>
+<p><strong>2.2 Automatically collected data:</strong></p>
+<ul><li>Device model and operating system</li><li>Installed app version</li><li>Diagnostic data and error logs (for bug fixes)</li><li>Aggregated and anonymized performance data</li></ul>
+<p><strong>2.3 Data we do NOT collect:</strong></p>
+<ul><li>Precise geographic location</li><li>Camera or microphone data</li><li>Device contacts or calendar</li><li>Data from other applications</li></ul>
+<h3>3. How we use your data</h3>
+<p>We use your data exclusively to:</p>
+<ul><li>Provide app features (agenda, tasks, habits, focus)</li><li>Sync your data across devices (if you enable cloud sync)</li><li>Calculate your productivity and consistency scores</li><li>Fix bugs and improve app performance</li><li>Send service communications, if you opt in</li></ul>
+<p><strong>We do not use your data for advertising, behavioral profiling, or any undisclosed commercial purpose.</strong></p>
+<h3>4. Storage and security</h3>
+<p><strong>Local storage:</strong> By default, all your productivity data is stored locally on your device. You have full control over it.</p>
+<p><strong>Cloud sync:</strong> If you enable sync, data is transmitted and stored with AES-256 encryption in transit (TLS 1.3) and at rest.</p>
+<p><strong>Retention:</strong> Data is retained while your account is active. After account deletion, all data is permanently removed within 30 days.</p>
+<h3>5. Data sharing</h3>
+<p>We do not sell, rent, or share your personal data with third parties, except in the following cases:</p>
+<ul><li><strong>Service providers:</strong> We may use third-party technical services (hosting, error analysis) under strict confidentiality agreements</li><li><strong>Legal obligation:</strong> When required by court order or competent authority</li><li><strong>Rights protection:</strong> To protect the rights, property, or safety of Balansy and its users</li></ul>
+<h3>6. Your rights</h3>
+<p>You have the following rights regarding your personal data:</p>
+<ul><li><strong>Access:</strong> Request confirmation and access to your personal data</li><li><strong>Correction:</strong> Request correction of incomplete, inaccurate, or outdated data</li><li><strong>Deletion:</strong> Request erasure of data that is no longer necessary</li><li><strong>Portability:</strong> Receive your data in a structured, interoperable format</li><li><strong>Withdraw consent:</strong> Withdraw your consent at any time</li><li><strong>Objection:</strong> Object to data processing carried out on other legal bases</li></ul>
+<p>To exercise any of these rights, contact us at <a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a>. We will respond within 15 business days.</p>
+<h3>7. Children</h3>
+<p>Balansy is not directed at children under 13. We do not intentionally collect data from children. If we identify data from a minor, we will delete it immediately.</p>
+<h3>8. Cookies and tracking</h3>
+<p>The mobile app does not use cookies. The Balansy website may use essential functional cookies to ensure proper page operation. We do not use advertising tracking or behavioral profiling cookies.</p>
+<h3>9. International transfers</h3>
+<p>If your data is processed outside your country of residence, we ensure this is done with adequate safeguards to protect your information.</p>
+<h3>10. Changes to this policy</h3>
+<p>We may update this Policy periodically. We will notify you of significant changes through the app or by email. Continued use after notification implies acceptance of changes.</p>
+<h3>11. Contact</h3>
+<p><a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>`,
+
+es:`<h2>Política de Privacidad</h2><span class="ldate">Última actualización: 26 de abril de 2026</span>
+<p>Esta Política de Privacidad describe cómo <strong>Balansy</strong> recopila, usa, almacena y protege la información de sus usuarios.</p>
+<h3>1. Quiénes somos</h3>
+<p>Balansy es una app de productividad personal desarrollada por Maicon Scariotti Lucca. Para preguntas sobre privacidad: <a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a>.</p>
+<h3>2. Datos que recopilamos</h3>
+<p><strong>Datos proporcionados por el usuario:</strong> nombre, correo electrónico (solo si creas una cuenta), tareas, hábitos, eventos de agenda y sesiones de enfoque. <strong>Datos automáticos:</strong> modelo de dispositivo, sistema operativo, versión de la app, datos de diagnóstico y rendimiento anonimizados. <strong>No recopilamos:</strong> ubicación precisa, cámara, micrófono ni contactos del dispositivo.</p>
+<h3>3. Cómo usamos tus datos</h3>
+<p>Usamos tus datos exclusivamente para proporcionar las funcionalidades del app, sincronizar entre dispositivos (si activas la nube), calcular tus índices de productividad y corregir errores. <strong>No usamos tus datos para publicidad ni perfiles comerciales.</strong></p>
+<h3>4. Almacenamiento y seguridad</h3>
+<p>Por defecto, todos los datos se almacenan localmente en tu dispositivo. Si activas la sincronización en la nube, los datos se cifran con AES-256 en tránsito (TLS 1.3) y en reposo. Tras eliminar tu cuenta, todos los datos se borran permanentemente en 30 días.</p>
+<h3>5. Compartición de datos</h3>
+<p>No vendemos ni compartimos tus datos personales con terceros, salvo obligación legal, proveedores de servicios técnicos bajo contratos de confidencialidad, o para proteger los derechos y seguridad de los usuarios.</p>
+<h3>6. Tus derechos</h3>
+<p>Tienes derecho a acceder, rectificar, suprimir y portar tus datos, así como a retirar tu consentimiento en cualquier momento. Contáctanos en <a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a> y responderemos en un plazo de 15 días hábiles.</p>
+<h3>7. Menores de edad</h3>
+<p>Balansy no está dirigido a menores de 13 años y no recopila intencionalmente sus datos.</p>
+<h3>8. Cookies</h3>
+<p>La app móvil no usa cookies. El sitio web puede usar cookies funcionales esenciales. No utilizamos cookies de rastreo publicitario.</p>
+<h3>9. Cambios en esta política</h3>
+<p>Notificaremos cambios significativos mediante la app o por correo electrónico.</p>
+<h3>10. Contacto</h3>
+<p><a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>`,
+
+it:`<h2>Politica sulla Privacy</h2><span class="ldate">Ultimo aggiornamento: 26 aprile 2026</span>
+<p>Questa Politica sulla Privacy descrive come <strong>Balansy</strong> raccoglie, utilizza, conserva e protegge le informazioni degli utenti.</p>
+<h3>1. Chi siamo</h3>
+<p>Balansy è un'app di produttività personale sviluppata da Maicon Scariotti Lucca. Per domande sulla privacy: <a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a>.</p>
+<h3>2. Dati che raccogliamo</h3>
+<p><strong>Dati forniti dall'utente:</strong> nome, e-mail (solo se crei un account), attività, abitudini, eventi dell'agenda e sessioni di focus. <strong>Dati automatici:</strong> modello del dispositivo, sistema operativo, versione dell'app, dati diagnostici e di prestazione anonimizzati. <strong>Non raccogliamo:</strong> posizione precisa, fotocamera, microfono né contatti del dispositivo.</p>
+<h3>3. Come utilizziamo i tuoi dati</h3>
+<p>Utilizziamo i tuoi dati esclusivamente per fornire le funzionalità dell'app, sincronizzare tra dispositivi (se attivi il cloud), calcolare i tuoi indici di produttività e correggere errori. <strong>Non utilizziamo i tuoi dati per pubblicità o profilazione commerciale.</strong></p>
+<h3>4. Archiviazione e sicurezza</h3>
+<p>Per impostazione predefinita, tutti i dati sono archiviati localmente sul tuo dispositivo. Se attivi la sincronizzazione cloud, i dati vengono crittografati con AES-256 in transito (TLS 1.3) e a riposo. Dopo l'eliminazione dell'account, tutti i dati vengono rimossi permanentemente entro 30 giorni.</p>
+<h3>5. Condivisione dei dati</h3>
+<p>Non vendiamo né condividiamo i tuoi dati personali con terze parti, salvo obbligo legale, fornitori di servizi tecnici con contratti di riservatezza, o per proteggere i diritti e la sicurezza degli utenti.</p>
+<h3>6. I tuoi diritti</h3>
+<p>Hai diritto di accedere, rettificare, cancellare e portare i tuoi dati, nonché di revocare il tuo consenso in qualsiasi momento. Contattaci a <a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a> e risponderemo entro 15 giorni lavorativi.</p>
+<h3>7. Minori</h3>
+<p>Balansy non è rivolto a bambini sotto i 13 anni e non ne raccoglie intenzionalmente i dati.</p>
+<h3>8. Cookie</h3>
+<p>L'app mobile non utilizza cookie. Il sito web può utilizzare cookie funzionali essenziali. Non utilizziamo cookie di tracciamento pubblicitario.</p>
+<h3>9. Modifiche alla politica</h3>
+<p>Notificheremo cambiamenti significativi tramite l'app o e-mail.</p>
+<h3>10. Contatto</h3>
+<p><a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>`
 },
 terms:{
-pt:`<h2>Termos de Uso</h2><p class="ldate">Última atualização: 26 de abril de 2026</p><p>Ao usar o Balansy, você concorda com estes Termos.</p><h3>1. Uso permitido</h3><p>O Balansy é licenciado para uso pessoal e não comercial. Você não pode copiar, modificar ou distribuir o aplicativo.</p><h3>2. Conta do usuário</h3><p>Você é responsável pela segurança de suas credenciais e por todas as atividades realizadas em sua conta.</p><h3>3. Conteúdo</h3><p>Você mantém propriedade sobre todos os dados inseridos no app. O Balansy não reivindica qualquer direito sobre seus dados.</p><h3>4. Limitação de responsabilidade</h3><p>O Balansy é fornecido "como está". Não nos responsabilizamos por perdas de dados decorrentes de circunstâncias fora do nosso controle.</p><h3>5. Contato</h3><p><a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>`,
-en:`<h2>Terms of Use</h2><p class="ldate">Last updated: April 26, 2026</p><p>By using Balansy, you agree to these Terms.</p><h3>1. Permitted use</h3><p>Balansy is licensed for personal, non-commercial use. You may not copy, modify, or distribute the application.</p><h3>2. User account</h3><p>You are responsible for maintaining the security of your credentials and for all activities performed on your account.</p><h3>3. Content</h3><p>You retain ownership of all data entered in the app. Balansy claims no rights over your data.</p><h3>4. Limitation of liability</h3><p>Balansy is provided "as is." We are not liable for data loss resulting from circumstances beyond our control.</p><h3>5. Contact</h3><p><a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>`,
-es:`<h2>Términos de Uso</h2><p class="ldate">Última actualización: 26 de abril de 2026</p><p>Al usar Balansy, aceptas estos Términos.</p><h3>1. Uso permitido</h3><p>Balansy está licenciado para uso personal y no comercial.</p><h3>2. Cuenta</h3><p>Eres responsable de la seguridad de tus credenciales y de todas las actividades en tu cuenta.</p><h3>3. Contenido</h3><p>Mantienes la propiedad de todos los datos ingresados en la app.</p><h3>4. Responsabilidad</h3><p>Balansy se proporciona tal cual. No somos responsables de pérdidas de datos fuera de nuestro control.</p><h3>5. Contacto</h3><p><a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>`,
-it:`<h2>Termini di Utilizzo</h2><p class="ldate">Ultimo aggiornamento: 26 aprile 2026</p><p>Utilizzando Balansy, accetti questi Termini.</p><h3>1. Uso consentito</h3><p>Balansy è concesso in licenza per uso personale e non commerciale.</p><h3>2. Account</h3><p>Sei responsabile della sicurezza delle tue credenziali e di tutte le attività sul tuo account.</p><h3>3. Contenuto</h3><p>Mantieni la proprietà di tutti i dati inseriti nell'app.</p><h3>4. Responsabilità</h3><p>Balansy viene fornito così com'è. Non siamo responsabili per perdite di dati fuori dal nostro controllo.</p><h3>5. Contatto</h3><p><a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>`
+pt:`<h2>Termos de Uso</h2><span class="ldate">Última atualização: 26 de abril de 2026</span>
+<p>Estes Termos de Uso ("Termos") regulam o uso do aplicativo <strong>Balansy</strong> ("App"), desenvolvido e mantido por Maicon Scariotti Lucca ("nós"). Ao instalar ou usar o App, você ("usuário") declara ter lido, compreendido e concordado com estes Termos.</p>
+<h3>1. Descrição do serviço</h3>
+<p>O Balansy é um aplicativo de produtividade pessoal que oferece funcionalidades de agenda, gestão de tarefas, rastreamento de hábitos, timer Pomodoro e índices de produtividade. O App está disponível para dispositivos Android (APK) e futuramente para iOS.</p>
+<h3>2. Elegibilidade</h3>
+<p>O App é destinado a usuários com 13 anos ou mais. Ao aceitar estes Termos, você declara ter pelo menos 13 anos. Menores entre 13 e 18 anos devem ter o consentimento de um responsável legal.</p>
+<h3>3. Conta do usuário</h3>
+<p>Algumas funcionalidades podem exigir a criação de uma conta. Você é responsável por:</p>
+<ul><li>Manter a confidencialidade de suas credenciais de acesso</li><li>Todas as atividades realizadas em sua conta</li><li>Notificar-nos imediatamente sobre qualquer uso não autorizado</li></ul>
+<p>Reservamo-nos o direito de suspender ou encerrar contas que violem estes Termos.</p>
+<h3>4. Licença de uso</h3>
+<p>Concedemos a você uma licença limitada, pessoal, não exclusiva, intransferível e revogável para usar o App exclusivamente para fins pessoais e não comerciais.</p>
+<h3>5. Usos proibidos</h3>
+<p>É expressamente proibido:</p>
+<ul><li>Copiar, modificar, distribuir, vender ou sublicenciar o App ou qualquer parte dele</li><li>Realizar engenharia reversa, descompilar ou desmontar o App</li><li>Usar o App para fins ilegais, fraudulentos ou prejudiciais a terceiros</li><li>Tentar acessar sistemas, servidores ou redes conectados ao App sem autorização</li><li>Usar ferramentas automatizadas para extrair dados do App (scraping)</li><li>Remover ou alterar avisos de direitos autorais ou propriedade</li></ul>
+<h3>6. Conteúdo do usuário</h3>
+<p>Você mantém plena propriedade sobre todos os dados, textos e informações que inserir no App. Ao sincronizar com a nuvem, você nos concede uma licença técnica limitada, não exclusiva e revogável, necessária apenas para operar o serviço de sincronização.</p>
+<h3>7. Propriedade intelectual</h3>
+<p>O Balansy, incluindo seu código-fonte, design, logomarca, nome, funcionalidades e documentação, é protegido por direitos autorais e demais leis de propriedade intelectual. Nenhuma disposição destes Termos transfere qualquer direito de propriedade intelectual ao usuário.</p>
+<h3>8. Planos e pagamentos</h3>
+<p>O Balansy oferece um plano gratuito com funcionalidades básicas e pode oferecer planos pagos com recursos adicionais. Os preços, condições de pagamento e benefícios de cada plano são informados na página do App nas respectivas lojas (App Store e Google Play). Pagamentos são processados pelas plataformas da Apple ou Google, sujeitos às respectivas políticas.</p>
+<h3>9. Cancelamento e reembolsos</h3>
+<p>Você pode cancelar uma assinatura a qualquer momento pelas configurações da loja em que adquiriu. Reembolsos estão sujeitos à política da Apple ou Google. O plano gratuito está disponível permanentemente, sem restrição de tempo.</p>
+<h3>10. Disponibilidade do serviço</h3>
+<p>Empenhamo-nos para manter o App disponível continuamente, mas não garantimos disponibilidade ininterrupta. Podemos interromper, modificar ou encerrar o serviço a qualquer momento, com aviso prévio razoável sempre que possível.</p>
+<h3>11. Isenção de garantias</h3>
+<p>O App é fornecido "no estado em que se encontra" e "conforme disponível", sem garantias de qualquer tipo, expressas ou implícitas, incluindo, sem limitação, garantias de comercialização, adequação a uma finalidade específica ou não violação de direitos.</p>
+<h3>12. Limitação de responsabilidade</h3>
+<p>Na máxima extensão permitida pela lei aplicável, não seremos responsáveis por danos indiretos, incidentais, especiais, consequenciais ou punitivos, incluindo perda de dados, lucros cessantes ou interrupção de negócios, decorrentes do uso ou impossibilidade de uso do App.</p>
+<h3>13. Indenização</h3>
+<p>Você concorda em nos indenizar e isentar de responsabilidade por quaisquer reclamações, danos, prejuízos, custos ou despesas (incluindo honorários advocatícios razoáveis) decorrentes do seu uso do App em violação a estes Termos.</p>
+<h3>14. Modificações dos termos</h3>
+<p>Podemos revisar estes Termos periodicamente. Notificaremos alterações significativas com antecedência mínima de 7 dias, via App ou e-mail. O uso continuado após a data de vigência das alterações implica aceitação dos novos Termos.</p>
+<h3>15. Rescisão</h3>
+<p>Você pode encerrar sua conta a qualquer momento, excluindo o App e solicitando a remoção dos dados pelo e-mail de contato. Podemos rescindir ou suspender seu acesso em caso de violação destes Termos, sem aviso prévio nos casos de violações graves.</p>
+<h3>16. Lei aplicável e foro</h3>
+<p>Estes Termos são regidos pelas leis da República Federativa do Brasil. Para dirimir eventuais controvérsias, fica eleito o foro da Comarca de Curitiba, Estado do Paraná, com renúncia a qualquer outro, por mais privilegiado que seja.</p>
+<h3>17. Contato</h3>
+<p>Para dúvidas sobre estes Termos ou sobre o App:<br><a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>`,
+
+en:`<h2>Terms of Use</h2><span class="ldate">Last updated: April 26, 2026</span>
+<p>These Terms of Use ("Terms") govern the use of the <strong>Balansy</strong> app ("App"), developed and maintained by Maicon Scariotti Lucca ("we"). By installing or using the App, you ("user") declare that you have read, understood, and agreed to these Terms.</p>
+<h3>1. Service description</h3>
+<p>Balansy is a personal productivity app offering agenda, task management, habit tracking, Pomodoro timer, and productivity score features. The App is available for Android (APK) and upcoming for iOS.</p>
+<h3>2. Eligibility</h3>
+<p>The App is intended for users aged 13 and over. Users between 13 and 18 must have parental or guardian consent.</p>
+<h3>3. User account</h3>
+<p>Some features may require account creation. You are responsible for maintaining the confidentiality of your credentials and for all activities performed on your account. Notify us immediately of any unauthorized use.</p>
+<h3>4. License</h3>
+<p>We grant you a limited, personal, non-exclusive, non-transferable, and revocable license to use the App solely for personal, non-commercial purposes.</p>
+<h3>5. Prohibited uses</h3>
+<ul><li>Copying, modifying, distributing, selling, or sublicensing the App</li><li>Reverse engineering, decompiling, or disassembling the App</li><li>Using the App for illegal, fraudulent, or harmful purposes</li><li>Attempting unauthorized access to systems connected to the App</li><li>Automated data extraction (scraping)</li><li>Removing or altering copyright or proprietary notices</li></ul>
+<h3>6. User content</h3>
+<p>You retain full ownership of all data you enter into the App. When syncing to the cloud, you grant us a limited technical license necessary only to operate the sync service.</p>
+<h3>7. Intellectual property</h3>
+<p>Balansy, including its source code, design, logo, name, features, and documentation, is protected by copyright and intellectual property laws. Nothing in these Terms transfers any intellectual property rights to the user.</p>
+<h3>8. Plans and payments</h3>
+<p>Balansy offers a free plan with basic features and may offer paid plans with additional capabilities. Pricing and benefits are available on the App store pages. Payments are processed by Apple or Google under their respective policies.</p>
+<h3>9. Cancellation and refunds</h3>
+<p>You may cancel a subscription at any time through your store account settings. Refunds are subject to Apple or Google policy. The free plan is permanently available with no time restriction.</p>
+<h3>10. Service availability</h3>
+<p>We strive for continuous availability but do not guarantee uninterrupted service. We may modify or discontinue the service with reasonable notice whenever possible.</p>
+<h3>11. Disclaimer of warranties</h3>
+<p>The App is provided "as is" and "as available," without warranties of any kind, express or implied, including merchantability, fitness for a particular purpose, or non-infringement.</p>
+<h3>12. Limitation of liability</h3>
+<p>To the maximum extent permitted by law, we are not liable for indirect, incidental, special, consequential, or punitive damages, including data loss or business interruption, arising from use of the App.</p>
+<h3>13. Modifications</h3>
+<p>We may revise these Terms periodically, with at least 7 days' notice for significant changes via the App or email.</p>
+<h3>14. Termination</h3>
+<p>You may close your account at any time. We may suspend or terminate access for violations of these Terms.</p>
+<h3>15. Governing law</h3>
+<p>These Terms are governed by the laws of Brazil. Any disputes shall be resolved in the courts of Curitiba, Paraná.</p>
+<h3>16. Contact</h3>
+<p><a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>`,
+
+es:`<h2>Términos de Uso</h2><span class="ldate">Última actualización: 26 de abril de 2026</span>
+<p>Estos Términos de Uso regulan el uso de la app <strong>Balansy</strong>, desarrollada por Maicon Scariotti Lucca.</p>
+<h3>1. Descripción del servicio</h3>
+<p>Balansy es una app de productividad personal con agenda, gestión de tareas, seguimiento de hábitos, timer Pomodoro e índices de productividad. Disponible para Android (APK) y próximamente para iOS.</p>
+<h3>2. Elegibilidad</h3>
+<p>La app está destinada a mayores de 13 años. Los menores entre 13 y 18 años requieren consentimiento de un tutor legal.</p>
+<h3>3. Cuenta</h3>
+<p>Eres responsable de la confidencialidad de tus credenciales y de todas las actividades en tu cuenta. Notifícanos inmediatamente cualquier uso no autorizado.</p>
+<h3>4. Licencia</h3>
+<p>Te otorgamos una licencia limitada, personal, no exclusiva e intransferible para usar la app con fines personales y no comerciales.</p>
+<h3>5. Usos prohibidos</h3>
+<p>Está prohibido copiar, modificar, distribuir o vender la app; realizar ingeniería inversa; usar la app para fines ilegales; o extraer datos automáticamente.</p>
+<h3>6. Contenido del usuario</h3>
+<p>Conservas la propiedad plena de todos los datos que ingresas. Al sincronizar con la nube, nos otorgas una licencia técnica limitada para operar ese servicio.</p>
+<h3>7. Propiedad intelectual</h3>
+<p>Balansy y todos sus elementos están protegidos por derechos de autor. Nada en estos Términos transfiere derechos de propiedad intelectual al usuario.</p>
+<h3>8. Planes y pagos</h3>
+<p>Balansy ofrece un plan gratuito permanente y puede ofrecer planes de pago. Los precios se informan en las tiendas de apps. Los pagos son procesados por Apple o Google.</p>
+<h3>9. Cancelación</h3>
+<p>Puedes cancelar en cualquier momento desde la configuración de tu tienda. El plan gratuito está disponible permanentemente.</p>
+<h3>10. Limitación de responsabilidad</h3>
+<p>La app se proporciona tal cual. No somos responsables de daños indirectos, pérdidas de datos o interrupciones derivadas del uso de la app.</p>
+<h3>11. Modificaciones</h3>
+<p>Notificaremos cambios significativos con al menos 7 días de antelación.</p>
+<h3>12. Legislación aplicable</h3>
+<p>Estos Términos se rigen por las leyes de Brasil. Las disputas se resolverán en los tribunales de Curitiba, Paraná.</p>
+<h3>13. Contacto</h3>
+<p><a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>`,
+
+it:`<h2>Termini di Utilizzo</h2><span class="ldate">Ultimo aggiornamento: 26 aprile 2026</span>
+<p>Questi Termini di Utilizzo regolano l'uso dell'app <strong>Balansy</strong>, sviluppata da Maicon Scariotti Lucca.</p>
+<h3>1. Descrizione del servizio</h3>
+<p>Balansy è un'app di produttività personale con agenda, gestione attività, tracciamento abitudini, timer Pomodoro e indici di produttività. Disponibile per Android (APK) e prossimamente per iOS.</p>
+<h3>2. Idoneità</h3>
+<p>L'app è destinata a utenti di 13 anni o più. Gli utenti tra 13 e 18 anni richiedono il consenso di un genitore o tutore.</p>
+<h3>3. Account</h3>
+<p>Sei responsabile della riservatezza delle tue credenziali e di tutte le attività sul tuo account. Notificaci immediatamente qualsiasi uso non autorizzato.</p>
+<h3>4. Licenza</h3>
+<p>Ti concediamo una licenza limitata, personale, non esclusiva e non trasferibile per utilizzare l'app esclusivamente per scopi personali e non commerciali.</p>
+<h3>5. Usi vietati</h3>
+<p>È vietato copiare, modificare, distribuire o vendere l'app; effettuare reverse engineering; usare l'app per scopi illegali; o estrarre dati automaticamente.</p>
+<h3>6. Contenuto dell'utente</h3>
+<p>Mantieni la piena proprietà di tutti i dati che inserisci. Sincronizzando con il cloud, ci concedi una licenza tecnica limitata necessaria per operare quel servizio.</p>
+<h3>7. Proprietà intellettuale</h3>
+<p>Balansy e tutti i suoi elementi sono protetti da copyright. Nulla in questi Termini trasferisce diritti di proprietà intellettuale all'utente.</p>
+<h3>8. Piani e pagamenti</h3>
+<p>Balansy offre un piano gratuito permanente e può offrire piani a pagamento. I prezzi sono indicati negli store. I pagamenti sono elaborati da Apple o Google.</p>
+<h3>9. Cancellazione</h3>
+<p>Puoi cancellare l'abbonamento in qualsiasi momento dalle impostazioni dello store. Il piano gratuito è disponibile permanentemente.</p>
+<h3>10. Limitazione di responsabilità</h3>
+<p>L'app viene fornita così com'è. Non siamo responsabili di danni indiretti, perdita di dati o interruzioni derivanti dall'uso dell'app.</p>
+<h3>11. Modifiche</h3>
+<p>Notificheremo cambiamenti significativi con almeno 7 giorni di preavviso.</p>
+<h3>12. Legge applicabile</h3>
+<p>Questi Termini sono regolati dalle leggi del Brasile. Le controversie saranno risolte nei tribunali di Curitiba, Paraná.</p>
+<h3>13. Contatto</h3>
+<p><a href="mailto:subsolo.4.criticar@icloud.com">subsolo.4.criticar@icloud.com</a></p>`
 }
 };
 let lang='pt';
 function detectLang(){const n=navigator.language||'pt';if(n.startsWith('pt'))return'pt';if(n.startsWith('es'))return'es';if(n.startsWith('it'))return'it';return'en'}
-function setLang(l){lang=l;const t=T[l];document.querySelectorAll('[data-i]').forEach(el=>{const k=el.getAttribute('data-i');if(t[k]!==undefined)el.innerHTML=t[k]});document.querySelectorAll('[data-legal]').forEach(el=>{const k=el.getAttribute('data-legal');el.innerHTML=LEGAL[k][l]||LEGAL[k].pt});document.getElementById('lsel').value=l}
-function showLegal(type,btn){document.querySelectorAll('.ltab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.lcontent').forEach(c=>c.classList.remove('active'));document.getElementById('l-'+type).classList.add('active');if(btn)btn.classList.add('active')}
+function setLang(l){lang=l;const t=T[l];document.querySelectorAll('[data-i]').forEach(el=>{const k=el.getAttribute('data-i');if(t[k]!==undefined)el.innerHTML=t[k]});document.getElementById('mc-privacy').innerHTML=LEGAL.privacy[l]||LEGAL.privacy.pt;document.getElementById('mc-terms').innerHTML=LEGAL.terms[l]||LEGAL.terms.pt;document.getElementById('lsel').value=l}
+function openLegal(type){const m=document.getElementById('modal-legal');m.classList.add('open');document.body.style.overflow='hidden';switchLegal(type)}
+function closeLegal(){document.getElementById('modal-legal').classList.remove('open');document.body.style.overflow=''}
+function switchLegal(type){document.querySelectorAll('.modal-content').forEach(c=>c.classList.remove('active'));document.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));document.getElementById('mc-'+type).classList.add('active');document.getElementById('mtab-'+type).classList.add('active');document.querySelector('.modal-body').scrollTop=0}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLegal()})
 window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('scrolled',scrollY>40)});
 const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');e.target.querySelectorAll('.mbf').forEach(b=>b.style.width=b.dataset.t+'%')}})},{threshold:.12});
 document.querySelectorAll('.reveal,.rl,.rr,.mcard').forEach(el=>obs.observe(el));
